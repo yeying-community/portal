@@ -49,6 +49,71 @@ export interface AuditCommentMetadata {
     signature?: string;
 }
 
+export interface AuditDetailBox {
+    uid?: string,
+    name? : string,
+    desc? : string,
+    applicantor?: string,
+    state?: string,
+    date?: string,
+    serviceType?: string
+}
+
+
+function allEqualTo<T>(arr: T[], value: T): boolean {
+  return arr.every(item => item === value);
+}
+
+function getState(metas?: AuditCommentMetadata[]) {
+  let status: string = "待审批";
+  if (metas === undefined || metas.length === 0) {
+    return status;
+  }
+
+  // 过滤掉 status 为 undefined 的项
+  const statusList: AuditCommentStatusEnum[] = metas
+    .map(item => item.status)
+    .filter((status): status is AuditCommentStatusEnum => status !== undefined);
+
+  if (statusList.length === 0) {
+    return status; // 如果没有有效状态，仍为“待审批”
+  }
+
+  if (statusList.includes(AuditCommentStatusEnum.COMMENTSTATUSREJECT)) {
+    status = '审批驳回';
+  } else if (allEqualTo(statusList, AuditCommentStatusEnum.COMMENTSTATUSAGREE)) {
+    status = '审批通过';
+  }
+
+  return status;
+}
+
+function cvData(auditMyApply: AuditAuditDetail) {
+    if (auditMyApply === undefined || auditMyApply.meta === undefined || auditMyApply.meta.appOrServiceMetadata === undefined || auditMyApply.meta.applicant === undefined) {
+        return null
+    }
+    const rawData = JSON.parse(auditMyApply.meta.appOrServiceMetadata);
+    const did = auditMyApply.meta.applicant.split('::')[0]
+
+    const metadata: AuditDetailBox = {
+        uid: auditMyApply.meta.uid,
+        name: rawData.name,
+        desc: rawData.description,
+        serviceType: auditMyApply.meta.auditType,
+        applicantor: did,
+        state: getState(auditMyApply.commentMeta),
+        date: auditMyApply.meta.createdAt
+    };
+    return metadata
+ 
+}
+
+export function convertAuditMetadata(auditMyApply: AuditAuditDetail[]) {
+  return auditMyApply
+    .map(cvData)
+    .filter((item): item is AuditDetailBox => item !== null) // ✅ 过滤 null 并类型收窄
+}
+
 const endpoint = import.meta.env.VITE_API_ENDPOINT
 
 class $audit {

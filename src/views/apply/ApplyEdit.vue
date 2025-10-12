@@ -427,9 +427,9 @@ const changeFile = async (fileType, uploadFile) => {
         return
     }
     if (fileType === 1) {
-        imageUrl.value = uploadFile.name
+        imageUrl.value = `${prefixURL}/${uploadFile.name}`
     } else if (fileType === 2) {
-        codeUrl.value = uploadFile.name
+        codeUrl.value = `${prefixURL}/${uploadFile.name}`
     }
     
     

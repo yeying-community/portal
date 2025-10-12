@@ -446,7 +446,7 @@ const handleOnline = () => {
                 reason: '上架申请',
                 createdAt: getCurrentUtcString(),
                 updatedAt: getCurrentUtcString(),
-                signature: 'xxx'
+                signature: 'mock'
             }
             const status = await $audit.create(meta)
             if (status.code === "OK") {

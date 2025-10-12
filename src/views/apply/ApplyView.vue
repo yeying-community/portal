@@ -53,8 +53,9 @@ import $application, { ApplicationMetadata } from '@/plugins/application'
 import MarketBlock from '@/views/components/MarketBlock.vue'
 import { useRouter, useRoute, RouteLocationAsPathGeneric, RouteLocationAsRelativeGeneric } from 'vue-router'
 import { userInfo } from '@/plugins/account'
-import $audit, { AuditAuditDetail, AuditAuditMetadata } from '@/plugins/audit'
+import $audit, { AuditAuditDetail, AuditAuditMetadata, convertAuditMetadata } from '@/plugins/audit'
 import { notifyError } from '@/utils/message'
+import { AuditDetailBox } from '@/stores/audit'
 
 const searchVal = ref<string>('')
 const activeService = ref<string>('market')
@@ -127,6 +128,10 @@ function convertApplicationMetadata(auditMyApply: AuditAuditDetail[]) {
         .filter((a): a is ApplicationMetadata => a !== undefined && a !== null)
 }
 
+function getName(box: AuditDetailBox) {
+    return box.name
+}
+
 const search = async () => {
     try {
         let condition = { keyword: searchVal.value, status: "APPLICATION_STATUS_ONLINE" }
@@ -151,7 +156,19 @@ const search = async () => {
                 notifyError('❌登录失败，did is undefined')
                 return
             }
-            const res = await $application.myApplyList(userInfo?.metadata?.did)
+            let res = await $application.myApplyList(userInfo?.metadata?.did)
+            console.log(`res=${JSON.stringify(res)}`)
+            // 过滤出审批通过的
+            const applicant = `${userInfo?.metadata?.did}::${userInfo?.metadata?.did}`
+            let auditMyApply: AuditAuditDetail[] = await $audit.search({applicant: applicant})
+            console.log(`auditMyApply=${JSON.stringify(auditMyApply)}`)
+            auditMyApply = auditMyApply.filter((item) => item.meta?.reason === '申请使用')
+            console.log(`auditMyApply=${JSON.stringify(auditMyApply)}`)
+            let resApp: AuditDetailBox[] = convertAuditMetadata(auditMyApply)
+            console.log(`resApp=${JSON.stringify(resApp)}`)
+            let names: string[] = resApp.filter((s) => s.state === '审批通过' && s.serviceType === 'application').map(a => getName(a))
+            console.log(`names=${JSON.stringify(names)}`)
+            res = res.filter((b) => names.includes(b.name))
             console.log(`auditMyApply=${JSON.stringify(res)}`)
 
             if (Array.isArray(res)) {
