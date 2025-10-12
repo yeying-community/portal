@@ -108,9 +108,8 @@
 import { ref, reactive, onMounted, watch } from 'vue'
 import ApprovalTable from '@/views/components/ApprovalTable.vue'
 import { userInfo } from '@/plugins/account'
-import $audit, { AuditAuditDetail, AuditCommentMetadata, AuditCommentStatusEnum } from '@/plugins/audit'
-import { ApplicationMetadata } from '@/plugins/application'
-import { AuditDetailBox, useDataStore } from '@/stores/audit'
+import $audit, { AuditAuditDetail, AuditCommentMetadata, AuditCommentStatusEnum, AuditDetailBox, convertAuditMetadata } from '@/plugins/audit'
+import { useDataStore } from '@/stores/audit'
 
 const store = useDataStore()
 
@@ -140,7 +139,6 @@ const handleSizeChange = (pageSize: number) => {
     }
 }
 const changeTab = (index: number) => {
-    console.log(`changeTab=${index}`)
     tabIndex.value = index
     pagination.value.page = 1
     search()
@@ -150,69 +148,13 @@ const onReset = (formEl: any) => {
     pagination.value.page = 1
 }
 
-function allEqualTo<T>(arr: T[], value: T): boolean {
-  return arr.every(item => item === value);
-}
-
-function getState(metas?: AuditCommentMetadata[]) {
-  let status: string = "待审批";
-  if (metas === undefined || metas.length === 0) {
-    return status;
-  }
-
-  // 过滤掉 status 为 undefined 的项
-  const statusList: AuditCommentStatusEnum[] = metas
-    .map(item => item.status)
-    .filter((status): status is AuditCommentStatusEnum => status !== undefined);
-
-  if (statusList.length === 0) {
-    return status; // 如果没有有效状态，仍为“待审批”
-  }
-
-  if (statusList.includes(AuditCommentStatusEnum.COMMENTSTATUSREJECT)) {
-    status = '审批驳回';
-  } else if (allEqualTo(statusList, AuditCommentStatusEnum.COMMENTSTATUSAGREE)) {
-    status = '审批通过';
-  }
-
-  return status;
-}
-
-function cvData(auditMyApply: AuditAuditDetail) {
-    if (auditMyApply === undefined || auditMyApply.meta === undefined || auditMyApply.meta.appOrServiceMetadata === undefined || auditMyApply.meta.applicant === undefined) {
-        return null
-    }
-    const rawData = JSON.parse(auditMyApply.meta.appOrServiceMetadata);
-    const did = auditMyApply.meta.applicant.split('::')[0]
-
-    const metadata: AuditDetailBox = {
-        uid: auditMyApply.meta.uid,
-        name: rawData.name,
-        desc: rawData.description,
-        serviceType: auditMyApply.meta.auditType,
-        applicantor: did,
-        state: getState(auditMyApply.commentMeta),
-        date: auditMyApply.meta.createdAt
-    };
-    return metadata
- 
-}
-
-function convertApplicationMetadata(auditMyApply: AuditAuditDetail[]) {
-  return auditMyApply
-    .map(cvData)
-    .filter((item): item is AuditDetailBox => item !== null) // ✅ 过滤 null 并类型收窄
-}
-
 const tableData = ref<AuditDetailBox[]>([])
 
 const search = async () => {
-    console.log(`formInline=${JSON.stringify(formInline)}`)
     const approver = `${userInfo?.metadata?.did}::${userInfo?.metadata?.did}`
     const auditMyApply: AuditAuditDetail[] = await $audit.search({approver: approver, name: formInline.appName})
 
-    let res: AuditDetailBox[] = convertApplicationMetadata(auditMyApply)
-    console.log(`res=${JSON.stringify(res)}`)
+    let res: AuditDetailBox[] = convertAuditMetadata(auditMyApply)
     if (tabIndex.value === 1) {
         res = res.filter((s) => s.state === '审批通过' || s.state === '审批驳回')
     }

@@ -294,11 +294,7 @@ const submitForm = async (formEl, andOnline) => {
     await formEl.validate(async (valid: boolean, fields) => {
         if (valid) {
             const params = JSON.parse(JSON.stringify(detailInfo.value))
-            console.log(`创建应用表单参数=${JSON.stringify(params)}`)
-            // 重复检查
-            console.log(`userInfo?.metadata?.did=${JSON.stringify(userInfo?.metadata?.did)}`)
             const existsList = await $application.myCreateList(userInfo?.metadata?.did)
-            console.log(`existsList=${JSON.stringify(existsList)}`)
             if (Array.isArray(existsList)) {
                 for (const item of existsList) {
                     if (item.name === params.name) {
@@ -320,7 +316,6 @@ const submitForm = async (formEl, andOnline) => {
                 rr.ownerName = userInfo?.metadata?.name
                 rr.serviceCodes = params.serviceCodes
                 const myCreateUpdate = await $application.myCreateUpdate(rr)
-                console.log(`myCreateUpdate=${JSON.stringify(myCreateUpdate)}`)
                 if (!andOnline) {
                     innerVisible.value = true
                 } else {
@@ -341,7 +336,6 @@ const submitForm = async (formEl, andOnline) => {
                 params.owner = userInfo?.metadata?.did
                 params.ownerName = userInfo?.metadata?.name
                 const result = await $application.create(params)
-                console.log(`result=${JSON.stringify(result)}`)
                 innerVisible.value = true
             }
         } else {
@@ -368,7 +362,6 @@ const submitFormAndOnline = (formEl) => {
     submitForm(formEl, true)
 }
 const changeFileAvatar = (uploadFile) => {
-    console.log(uploadFile)
     changeFile(1, uploadFile)
 }
 const changeFileCode = (uploadFile) => {
@@ -376,70 +369,33 @@ const changeFileCode = (uploadFile) => {
 }
 
 const changeFile = async (fileType, uploadFile) => {
-    // const namespaceId = await $application.getNameSpaceId()
-
-    // curImg.value.name = uploadFile.name;
-    // curImg.value.size = (uploadFile.size / 1024).toFixed(1) + "M";
-
-    // if (namespaceId && uploadFile) {
-    //     try {
-    //         const uploader = await $application.uploads(uploadFile.raw, namespaceId)
-
-    //         const params = {
-    //             namespaceId,
-    //             hash: uploader.hash,
-    //             type: 1,
-    //             duration: 3600,
-    //             name: uploader.name
-    //         }
-
-    //         const linkInfo = await $application.createLink(params)
-    //         const url = linkInfo && linkInfo.url && linkInfo.url.url
-    //         if (fileType == 1) {
-    //             detailInfo.value.avatar = url
-    //             detailInfo.value.avatarName = uploadFile.name
-    //         } else {
-    //             detailInfo.value.codePackagePath = url
-    //             detailInfo.value.codePackageName = uploadFile.name
-    //             detailInfo.value.hash = uploader.hash
-    //         }
-    //     } catch (error) {
-    //         console.log(error)
-    //     }
-    // }
-
+    // ✅ 关键：获取原始文件对象 raw
+    const file = uploadFile.raw || uploadFile
+    if (!(file instanceof Blob)) {
+        notifyError('上传文件格式无效')
+        return
+    }
     const presignedUrl = await $minio.getUploadUrl(uploadFile.name)
-    console.log(`presignedUrl=${presignedUrl}`)
-
     // 2. 使用预签名 URL 上传文件
     const uploadRes = await fetch(presignedUrl, {
       method: 'PUT',
-      body: uploadFile.value,
+      body: file,
       headers: {
         'Content-Type': 'application/octet-stream',
       },
     });
-
-    console.log(`uploadRes.status=${uploadRes.status}`)
     if (uploadRes.status !== 200) {
         console.error(`文件上传失败=${uploadRes.status} - ${uploadRes.json}`)
         notifyError(`文件上传失败=${uploadRes.status} - ${uploadRes.json}`)
         return
     }
     if (fileType === 1) {
-        imageUrl.value = uploadFile.name
+        imageUrl.value = `${prefixURL}/${uploadFile.name}`
     } else if (fileType === 2) {
-        codeUrl.value = uploadFile.name
+        codeUrl.value = `${prefixURL}/${uploadFile.name}`
     }
-    
-    
+}
 
-}
-const getUserInfo = async () => {
-    const info = await $account.getActiveIdentity()
-    console.log(info, '-infoinfoinfo-')
-    userMeta.value = info.metadata || {}
-}
 onMounted(() => {
     getDetailInfo()
 })

@@ -53,8 +53,9 @@ import $application, { ApplicationMetadata } from '@/plugins/application'
 import MarketBlock from '@/views/components/MarketBlock.vue'
 import { useRouter, useRoute, RouteLocationAsPathGeneric, RouteLocationAsRelativeGeneric } from 'vue-router'
 import { userInfo } from '@/plugins/account'
-import $audit, { AuditAuditDetail, AuditAuditMetadata } from '@/plugins/audit'
+import $audit, { AuditAuditDetail, AuditAuditMetadata, convertAuditMetadata } from '@/plugins/audit'
 import { notifyError } from '@/utils/message'
+import { AuditDetailBox } from '@/stores/audit'
 
 const searchVal = ref<string>('')
 const activeService = ref<string>('market')
@@ -127,6 +128,10 @@ function convertApplicationMetadata(auditMyApply: AuditAuditDetail[]) {
         .filter((a): a is ApplicationMetadata => a !== undefined && a !== null)
 }
 
+function getName(box: AuditDetailBox) {
+    return box.name
+}
+
 const search = async () => {
     try {
         let condition = { keyword: searchVal.value, status: "APPLICATION_STATUS_ONLINE" }
@@ -137,7 +142,6 @@ const search = async () => {
                 return
             }
             const res = await $application.myCreateList(userInfo?.metadata?.did)
-            console.log(`myCreateList=${JSON.stringify(res)}`)
             if (Array.isArray(res)) {
                 applicationList.value = res
             } else {
@@ -151,9 +155,14 @@ const search = async () => {
                 notifyError('❌登录失败，did is undefined')
                 return
             }
-            const res = await $application.myApplyList(userInfo?.metadata?.did)
-            console.log(`auditMyApply=${JSON.stringify(res)}`)
-
+            let res = await $application.myApplyList(userInfo?.metadata?.did)
+            // 过滤出审批通过的
+            const applicant = `${userInfo?.metadata?.did}::${userInfo?.metadata?.did}`
+            let auditMyApply: AuditAuditDetail[] = await $audit.search({applicant: applicant})
+            auditMyApply = auditMyApply.filter((item) => item.meta?.reason === '申请使用')
+            let resApp: AuditDetailBox[] = convertAuditMetadata(auditMyApply)
+            let names: string[] = resApp.filter((s) => s.state === '审批通过' && s.serviceType === 'application').map(a => getName(a))
+            res = res.filter((b) => names.includes(b.name))
             if (Array.isArray(res)) {
                 applicationList.value = res
             } else {
@@ -166,7 +175,6 @@ const search = async () => {
         const res = await $application.search(condition, pagination.value.page, pagination.value.pageSize)
         if (Array.isArray(res)) {
             applicationList.value = res
-            console.log(`applicationList=${JSON.stringify(applicationList.value)}`)
         } else {
             console.warn('Expected array, but got:', res)
             applicationList.value = []

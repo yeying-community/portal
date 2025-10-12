@@ -121,8 +121,6 @@ class $service {
                 }
             }
         }
-        console.log(`body=${JSON.stringify(body)}`)
-        console.log(`endpoint=${endpoint}`)
         const response = await fetch(endpoint + '/api/v1/service/search', {
             method: 'POST',
             headers: {
@@ -137,7 +135,6 @@ class $service {
         }
 
         const r =  await response.json();
-        console.log(`r=${JSON.stringify(r)}`)
         return r.body.services
     }
 
@@ -147,23 +144,17 @@ class $service {
     }
 
     async myCreateList(did: string) {
-        console.log(`request did=${JSON.stringify(did)}`)
         const res = await indexedCache.indexAll('services', 'owner', did)
-        console.log(`response=${JSON.stringify(res)}`)
         return res
     }
 
     async myApplyList(applyOwner: string) {
-        console.log(`request applyOwner=${JSON.stringify(applyOwner)}`)
         const res = await indexedCache.indexAll('services_apply', 'applyOwner', applyOwner)
-        console.log(`response=${JSON.stringify(res)}`)
         return res
     }
 
     async myCreateDetailByUid(uid: string) {
-        console.log(`uid=${uid}`)
         const res = await indexedCache.getByKey('services', uid)
-        console.log(`res=${JSON.stringify(res)}`)
         return res
     }
 
@@ -176,9 +167,7 @@ class $service {
     }
 
     async myCreateDelete(uid: string) {
-        console.log(`request did=${JSON.stringify(uid)}`)
         const res = await indexedCache.deleteByKey('services', uid)
-        console.log(`response=${JSON.stringify(res)}`)
         return res
     }
 
@@ -196,8 +185,6 @@ class $service {
                 "service": service
             }
         }
-        console.log(`body=${JSON.stringify(body)}`)
-        console.log(`endpoint=${endpoint}`)
         const response = await fetch(endpoint + '/api/v1/service/create', {
             method: 'POST',
             headers: {
@@ -212,7 +199,6 @@ class $service {
         }
 
         const r =  await response.json();
-        console.log(`r=${JSON.stringify(r)}`)
         return r.body.service
     }
 
@@ -232,8 +218,6 @@ class $service {
                 "version": version
             }
         }
-        console.log(`body=${JSON.stringify(body)}`)
-        console.log(`endpoint=${endpoint}`)
         const response = await fetch(endpoint + '/api/v1/service/detail', {
             method: 'POST',
             headers: {
@@ -248,7 +232,6 @@ class $service {
         }
 
         const r =  await response.json();
-        console.log(`r=${JSON.stringify(r)}`)
         return r.body.service
     }
 
@@ -268,8 +251,6 @@ class $service {
                 "version": version
             }
         }
-        console.log(`body=${JSON.stringify(body)}`)
-        console.log(`endpoint=${endpoint}`)
         const response = await fetch(endpoint + '/api/v1/service/delete', {
             method: 'POST',
             headers: {
@@ -284,7 +265,6 @@ class $service {
         }
 
         const r =  await response.json();
-        console.log(`r=${JSON.stringify(r)}`)
         return r.body.status
     }
 

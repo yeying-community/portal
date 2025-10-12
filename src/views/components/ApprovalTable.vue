@@ -147,10 +147,7 @@ function convertApplicationMetadata(auditMyApply: AuditAuditDetail[]) {
 const search = async () => {
     const approver = `${userInfo?.metadata?.did}::${userInfo?.metadata?.did}`
     const auditMyApply: AuditAuditDetail[] = await $audit.search({approver: approver})
-
-    console.log(`pageTabFrom=${props.pageTabFrom}`)
     let res: AuditDetailBox[] = convertApplicationMetadata(auditMyApply)
-    console.log(`res=${JSON.stringify(res)}`)
     if (props.pageTabFrom === 'finishApproval') {
         res = res.filter((s) => s.state === '审批通过' || s.state === '审批驳回')
     }

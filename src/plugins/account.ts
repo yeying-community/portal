@@ -12,7 +12,6 @@ import {
 import { $account } from '@yeying-community/yeying-wallet'
 import $service from "@/plugins/service";
 import { createIdentity, Identity, IdentityApplicationExtend, IdentityCodeEnum, IdentityTemplate, NetworkTypeEnum, SecurityAlgorithm, serializeIdentityToJson, verifyIdentity } from '@yeying-community/yeying-web3';
-import $minio  from "@/plugins/minio";
 
 
 let namespaceProvider = null
@@ -128,7 +127,6 @@ export async function generateIdentity(code: string, serviceCodes: string, locat
     if (!success) {
         throw new Error("create identity error")
     }
-    // return serializeIdentityToJson(identity)
     return identity
 }
 

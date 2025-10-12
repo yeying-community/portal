@@ -13,8 +13,6 @@ class $minio {
                 "filename": filename
             }
         }
-        console.log(`body=${JSON.stringify(body)}`)
-        console.log(`endpoint=${endpoint}`)
         const response = await fetch(endpoint + '/api/v1/minio/presigned/upload/url', {
             method: 'POST',
             headers: {
@@ -29,7 +27,6 @@ class $minio {
         }
 
         const r =  await response.json();
-        console.log(`r=${JSON.stringify(r)}`)
         return r.body.url
     }
 

@@ -117,7 +117,6 @@ const search = async () => {
                 return
             }
             const res = await $service.myCreateList(userInfo?.metadata?.did)
-            console.log(`myCreateList=${JSON.stringify(res)}`)
             if (Array.isArray(res)) {
                 serviceList.value = res
             } else {

@@ -99,16 +99,12 @@ class $application {
      * @returns 
      */
     async myCreateList(did: string) {
-        console.log(`request did=${JSON.stringify(did)}`)
         const res = await indexedCache.indexAll('applications', 'owner', did)
-        console.log(`response=${JSON.stringify(res)}`)
         return res
     }
 
     async myCreateDelete(uid: string) {
-        console.log(`request did=${JSON.stringify(uid)}`)
         const res = await indexedCache.deleteByKey('applications', uid)
-        console.log(`response=${JSON.stringify(res)}`)
         return res
     }
 
@@ -125,9 +121,7 @@ class $application {
      * @returns 
      */
     async myCreateDetailByUid(uid: string) {
-        console.log(`uid=${uid}`)
         const res = await indexedCache.getByKey('applications', uid)
-        console.log(`res=${JSON.stringify(res)}`)
         return res
     }
 
@@ -137,9 +131,7 @@ class $application {
      * @returns 
      */
     async myCreateDeleteByUid(uid: string) {
-        console.log(`uid=${uid}`)
         const res = await indexedCache.deleteByKey('applications', uid)
-        console.log(`res=${JSON.stringify(res)}`)
         return res
     }
 
@@ -167,8 +159,6 @@ class $application {
                 }
             }
         }
-        console.log(`body=${JSON.stringify(body)}`)
-        console.log(`endpoint=${endpoint}`)
         const response = await fetch(endpoint + '/api/v1/application/search', {
             method: 'POST',
             headers: {
@@ -183,14 +173,11 @@ class $application {
         }
 
         const r =  await response.json();
-        console.log(`r=${JSON.stringify(r)}`)
         return r.body.applications
     }
 
     async myApplyList(applyOwner: string) {
-        console.log(`request applyOwner=${JSON.stringify(applyOwner)}`)
         const res = await indexedCache.indexAll('applications_apply', 'applyOwner', applyOwner)
-        console.log(`response=${JSON.stringify(res)}`)
         return res
     }
 
@@ -242,8 +229,6 @@ class $application {
                 "version": version
             }
         }
-        console.log(`body=${JSON.stringify(body)}`)
-        console.log(`endpoint=${endpoint}`)
         const response = await fetch(endpoint + '/api/v1/application/detail', {
             method: 'POST',
             headers: {
@@ -258,7 +243,6 @@ class $application {
         }
 
         const r =  await response.json();
-        console.log(`r=${JSON.stringify(r)}`)
         return r.body.application
     }
 
@@ -273,8 +257,6 @@ class $application {
                 "version": version
             }
         }
-        console.log(`body=${JSON.stringify(body)}`)
-        console.log(`endpoint=${endpoint}`)
         const response = await fetch(endpoint + '/api/v1/application/delete', {
             method: 'POST',
             headers: {
@@ -289,7 +271,6 @@ class $application {
         }
 
         const r =  await response.json();
-        console.log(`r=${JSON.stringify(r)}`)
         return r.body.status
     }
 
@@ -303,8 +284,6 @@ class $application {
                 "application": application
             }
         }
-        console.log(`body=${JSON.stringify(body)}`)
-        console.log(`endpoint=${endpoint}`)
         const response = await fetch(endpoint + '/api/v1/application/create', {
             method: 'POST',
             headers: {
@@ -319,7 +298,6 @@ class $application {
         }
 
         const r =  await response.json();
-        console.log(`r=${JSON.stringify(r)}`)
         return r.body.application
     }
 

@@ -102,8 +102,6 @@ const submitForm = () => {
         sourceDid: userInfo?.metadata?.did,
         reason: applyReason,
       }
-      // props.afterSubmit();
-        console.log(`申请使用 detail = ${JSON.stringify(props.detail)}`)
         let detailRst = null
         if (props.operateType === `application`) {
           detailRst = await $application.detail(props.detail?.did, props.detail?.version)
@@ -153,12 +151,10 @@ const submitForm = () => {
           meta.auditType = 'service'
         }
         const auditR = await $audit.create(meta)
-        console.log(`auditR=${JSON.stringify(auditR)}`)
         props.closeClick()
         try {
           const rs = await $audit.detail(auditUid)
           const appOrService = JSON.parse(rs.meta.appOrServiceMetadata)
-          console.log(`appOrService=${JSON.stringify(appOrService)}`)
           if (props.operateType === `application`) {
             const detailRstApp = await $application.detail(appOrService.did, appOrService.version)
             if (detailRstApp === undefined || detailRstApp === null) {
@@ -168,7 +164,6 @@ const submitForm = () => {
             detailRstApp.applyOwner = userInfo?.metadata?.did
             detailRstApp.uid = uuidv4()
             const r = await $application.myApplyCreate(detailRstApp)
-            console.log(`r=${JSON.stringify(r)}`)
           } else if (props.operateType === `service`) {
             const detailRstService = await $service.detail(appOrService.did, appOrService.version)
             if (detailRstService === undefined || detailRstService === null) {
@@ -178,7 +173,6 @@ const submitForm = () => {
             detailRstService.applyOwner = userInfo?.metadata?.did
             detailRstService.uid = uuidv4()
             const r = await $service.myApplyCreate(detailRstService)
-            console.log(`r=${JSON.stringify(r)}`)
             innerVisible.value = true
           }
         } catch (e) {
