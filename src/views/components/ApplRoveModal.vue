@@ -128,7 +128,6 @@ const searchWaitApply = async () => {
     const auditMyApply: AuditAuditDetail[] = await $audit.search({approver: approver})
 
     let res: AuditDetailBox[] = convertApplicationMetadata(auditMyApply)
-    console.log(`res=${JSON.stringify(res)}`)
     res = res.filter((s) => s.state === '待审批')
     if (Array.isArray(res)) {
         tableData.value = res
@@ -152,9 +151,6 @@ const submitForm = () => {
         if (valid) {
             const applyResult = form.result
             const applyOpinion = form.opinion
-            console.log(`applyResult=${applyResult}`)
-            console.log(`applyOpinion=${applyOpinion}`)
- 
             if (applyResult === 'passed') {
                 try {
                     const param = {
@@ -166,25 +162,17 @@ const submitForm = () => {
                         updatedAt: getCurrentUtcString(),
                         signature: ''
                     }
-                    console.log(`param=${JSON.stringify(param)}`)
                     const r: AuditCommentMetadata = await $audit.passed(param)
-                    console.log(`r=${JSON.stringify(r)}`)
-
                     const reasonRes = await $audit.detail(props.uid as string)
-                    console.log(`reasonRes=${JSON.stringify(reasonRes)}`)
-                    console.log(`reasonRes reason=${reasonRes.meta.reason}`)
                     const rs = await $audit.detail(props.uid as string)
                     const appOrService = JSON.parse(rs.meta.appOrServiceMetadata)
-                    console.log(`appOrService=${JSON.stringify(appOrService)}`)
                     if (reasonRes.meta.reason === '上架申请') {
                         if (appOrService.operateType === 'application') {
                             // 创建应用上线记录
                             const app = await $application.online(appOrService)
-                            console.log(`app=${app}`)
                         } else if (appOrService.operateType === 'service') {
                             // 创建服务上线记录
                             const service = await $service.online(appOrService)
-                            console.log(`service=${service}`)
                         }
         
                     }
@@ -219,9 +207,7 @@ const submitForm = () => {
                         updatedAt: getCurrentUtcString(),
                         signature: ''
                     }
-                    console.log(`param=${JSON.stringify(param)}`)
                     const r: AuditCommentMetadata = await $audit.reject(param)
-                    console.log(`r=${JSON.stringify(r)}`)
                 } catch (e) {
                     console.log(e)
                 }

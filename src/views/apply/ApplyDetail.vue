@@ -176,10 +176,7 @@ const detail = async () => {
         /**
          * 应用中心：我创建的-详情接口
          */
-        console.log("进入我创建的-详情接口")
         const detailRst = await $application.myCreateDetailByUid(route.query.uid)
-        console.log(`detailRst=${JSON.stringify(detailRst)}`)
-        // const detailRst = await $application.detail(did, version)
         detailInfo.value = detailRst || {}
     } else {
         /**
@@ -303,7 +300,6 @@ const handleOfflineConfirm = () => {
 }
 
 onMounted(() => {
-    console.log(`route.query=${JSON.stringify(route.query)}`)
     urlQuery.value = route.query
     detail()
 })

@@ -142,7 +142,6 @@ const search = async () => {
                 return
             }
             const res = await $application.myCreateList(userInfo?.metadata?.did)
-            console.log(`myCreateList=${JSON.stringify(res)}`)
             if (Array.isArray(res)) {
                 applicationList.value = res
             } else {
@@ -157,7 +156,6 @@ const search = async () => {
                 return
             }
             let res = await $application.myApplyList(userInfo?.metadata?.did)
-            console.log(`res=${JSON.stringify(res)}`)
             // 过滤出审批通过的
             const applicant = `${userInfo?.metadata?.did}::${userInfo?.metadata?.did}`
             let auditMyApply: AuditAuditDetail[] = await $audit.search({applicant: applicant})
@@ -177,7 +175,6 @@ const search = async () => {
         const res = await $application.search(condition, pagination.value.page, pagination.value.pageSize)
         if (Array.isArray(res)) {
             applicationList.value = res
-            console.log(`applicationList=${JSON.stringify(applicationList.value)}`)
         } else {
             console.warn('Expected array, but got:', res)
             applicationList.value = []

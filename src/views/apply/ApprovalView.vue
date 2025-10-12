@@ -139,7 +139,6 @@ const handleSizeChange = (pageSize: number) => {
     }
 }
 const changeTab = (index: number) => {
-    console.log(`changeTab=${index}`)
     tabIndex.value = index
     pagination.value.page = 1
     search()
@@ -152,12 +151,10 @@ const onReset = (formEl: any) => {
 const tableData = ref<AuditDetailBox[]>([])
 
 const search = async () => {
-    console.log(`formInline=${JSON.stringify(formInline)}`)
     const approver = `${userInfo?.metadata?.did}::${userInfo?.metadata?.did}`
     const auditMyApply: AuditAuditDetail[] = await $audit.search({approver: approver, name: formInline.appName})
 
     let res: AuditDetailBox[] = convertAuditMetadata(auditMyApply)
-    console.log(`res=${JSON.stringify(res)}`)
     if (tabIndex.value === 1) {
         res = res.filter((s) => s.state === '审批通过' || s.state === '审批驳回')
     }

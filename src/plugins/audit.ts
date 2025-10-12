@@ -128,8 +128,6 @@ class $audit {
                 "meta": meta
             }
         }
-        console.log(`body=${JSON.stringify(body)}`)
-        console.log(`endpoint=${endpoint}`)
         const response = await fetch(endpoint + '/api/v1/audit/create', {
             method: 'POST',
             headers: {
@@ -144,7 +142,6 @@ class $audit {
         }
 
         const r =  await response.json();
-        console.log(`r=${JSON.stringify(r)}`)
         return r.body.status
     }
 
@@ -158,8 +155,6 @@ class $audit {
                 "condition": condition
             }
         }
-        console.log(`body=${JSON.stringify(body)}`)
-        console.log(`endpoint=${endpoint}`)
         const response = await fetch(endpoint + '/api/v1/audit/search', {
             method: 'POST',
             headers: {
@@ -174,7 +169,6 @@ class $audit {
         }
 
         const r =  await response.json();
-        console.log(`r=${JSON.stringify(r)}`)
         return r.body.detail
     }
 
@@ -188,8 +182,6 @@ class $audit {
                 "metadata": metadata
             }
         }
-        console.log(`body=${JSON.stringify(body)}`)
-        console.log(`endpoint=${endpoint}`)
         const response = await fetch(endpoint + '/api/v1/audit/approve', {
             method: 'POST',
             headers: {
@@ -204,7 +196,6 @@ class $audit {
         }
 
         const r =  await response.json();
-        console.log(`r=${JSON.stringify(r)}`)
         return r.body.metadata
     }
 
@@ -218,8 +209,6 @@ class $audit {
                 "metadata": metadata
             }
         }
-        console.log(`body=${JSON.stringify(body)}`)
-        console.log(`endpoint=${endpoint}`)
         const response = await fetch(endpoint + '/api/v1/audit/reject', {
             method: 'POST',
             headers: {
@@ -234,7 +223,6 @@ class $audit {
         }
 
         const r =  await response.json();
-        console.log(`r=${JSON.stringify(r)}`)
         return r.body.metadata
     }
 
@@ -248,8 +236,6 @@ class $audit {
                 "uid": uid
             }
         }
-        console.log(`body=${JSON.stringify(body)}`)
-        console.log(`endpoint=${endpoint}`)
         const response = await fetch(endpoint + '/api/v1/audit/detail', {
             method: 'POST',
             headers: {
@@ -264,7 +250,6 @@ class $audit {
         }
 
         const r =  await response.json();
-        console.log(`r=${JSON.stringify(r)}`)
         return r.body.detail
     }
 
@@ -278,8 +263,6 @@ class $audit {
                 "uid": uid
             }
         }
-        console.log(`body=${JSON.stringify(body)}`)
-        console.log(`endpoint=${endpoint}`)
         const response = await fetch(endpoint + '/api/v1/audit/cancel', {
             method: 'POST',
             headers: {
@@ -294,7 +277,6 @@ class $audit {
         }
 
         const r =  await response.json();
-        console.log(`r=${JSON.stringify(r)}`)
         return r.body.meta
     }
 }
