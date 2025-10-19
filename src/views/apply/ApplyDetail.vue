@@ -134,6 +134,7 @@ import $application, { ApplicationDetail } from '@/plugins/application'
 import { Link } from '@element-plus/icons-vue'
 import Popover from '@/views/components/Popover.vue'
 import ConfigServiceModal from '@/views/components/ConfigServiceModal.vue'
+import { exportIdentityInfo } from '@/plugins/account'
 
 const route = useRoute()
 const router = useRouter()
@@ -147,7 +148,10 @@ const detailInfo = ref<ApplicationDetail>({
     serviceCodes: [],
     avatar: '',
     owner: '',
-    codePackagePath: ''
+    ownerName: '',
+    codePackagePath: '',
+    password: '',
+    password2: ''
 })
 const { uid: string = '', pageFrom = '' } = route.query || {}
 const innerVisible = ref(false)
@@ -191,7 +195,10 @@ const detail = async () => {
  *todo 学虎
   我创建的tab-详情页-导出身份
  */
-const exportIdentity = () => {}
+const exportIdentity = async () => {
+    const detailRst = await $application.myCreateDetailByUid(route.query.uid)
+    await exportIdentityInfo(detailRst.did, detailRst.ownerName)
+}
 
 /**
  * 删除接口

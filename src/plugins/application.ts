@@ -2,6 +2,7 @@ import { indexedCache } from './account'
 import { setLocalStorage, getLocalStorage } from '@/utils/common'
 import { createIdentity } from '@yeying-community/yeying-web3'
 import { userInfo } from '@/plugins/account'
+import $audit from '@/plugins/audit'
 
 export interface ApplicationDetail {
     name: string
@@ -302,8 +303,16 @@ class $application {
     }
 
     async unbind(uid: string) {
-        console.log(`解绑应用=${uid}`)
-        await indexedCache.deleteByKey('applications', uid)
+        const res = await indexedCache.getByKey('applications_apply', uid)
+        // 删除审批记录
+        const applicant = `${userInfo?.metadata?.did}::${userInfo?.metadata?.name}`
+        const detail = await $audit.search({applicant: applicant})
+        const auditUids = detail.filter((d) => d.meta.appOrServiceMetadata.includes(`"name":"${res.name}"`)).map((s) => s.meta.uid)
+        // 删除申请
+        for (const item of auditUids) {
+            await $audit.cancel(item)
+        }
+        await indexedCache.deleteByKey('applications_apply', uid)
     }
     
     async audit(did, version, passed, signature, auditor, comment) {
@@ -332,7 +341,6 @@ class $application {
     async uploads(file, namespaceId) {
         const asset = await uploader.createAssetMetadataJson(namespaceId, file)
         const info = await uploader.upload(file, asset, (r) => {
-            console.log(JSON.stringify(r), '--tt-')
         })
         return info
     }

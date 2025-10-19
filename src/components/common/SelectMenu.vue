@@ -79,7 +79,6 @@ watch(
   (newInfo) => {
     const newId = newInfo.selectId
     const info = props.selectList.find((item) => item.id == newId) || props.selectList[0];
-    // console.log(111111, info, newId);
     selected.value = info;
   },
   {deep:true, immediate: true }

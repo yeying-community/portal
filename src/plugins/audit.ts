@@ -279,6 +279,7 @@ class $audit {
         const r =  await response.json();
         return r.body.meta
     }
+    
 }
 
 export default new $audit()

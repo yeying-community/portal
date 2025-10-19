@@ -251,8 +251,7 @@ const rules = reactive({
     location: [{ required: true, message: '请输入', trigger: 'blur' }],
     avatar: [{ required: true, message: '请选择', trigger: 'blur' }],
     code: [{ required: true, message: '请选择', trigger: 'blur' }],
-    serviceCodes: [{ required: true, message: '请选择', trigger: 'blur' }],
-    codePackagePath: [{ required: true, message: '请上传代码包', trigger: 'blur' }]
+    serviceCodes: [{ required: true, message: '请选择', trigger: 'blur' }]
 })
 
 const getDetailInfo = async () => {

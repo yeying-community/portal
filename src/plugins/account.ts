@@ -91,6 +91,27 @@ async function initializeProviders() {
     serviceCenterProvider = new ServiceProvider(serviceProviderOption)
 }
 
+export class LocalCache {
+    private storage: Storage
+
+    constructor() {
+        this.storage = window.localStorage
+    }
+
+    get(key: string) {
+        return this.storage.getItem(key)
+    }
+
+    set(key: string, value: any) {
+        this.storage.setItem(key, value)
+    }
+
+    remove(key: string) {
+        this.storage.removeItem(key)
+    }
+}
+
+
 /**
  * 生成身份
  * @param code 
@@ -127,8 +148,40 @@ export async function generateIdentity(code: string, serviceCodes: string, locat
     if (!success) {
         throw new Error("create identity error")
     }
+    if (!identity.metadata?.did) {
+        throw new Error("create identity error")
+    }
+    const identityCache = new LocalCache()
+    identityCache.set(identity.metadata?.did, serializeIdentityToJson(identity))
     return identity
 }
+
+export async function exportIdentityInfo(did: string, name: string) {
+    if (did) {
+        const identity = await $account.exportIdentity(did);
+        const fileName = `${name}.id`;
+        downloadTextFile(fileName, identity);
+    }
+}
+
+const downloadTextFile = (filename: string, text: any) => {
+  // 创建一个 Blob 对象，存储文本数据
+  const blob = new Blob([text], { type: "text/plain" });
+
+  // 创建一个指向该 Blob 对象的 URL
+  const url = URL.createObjectURL(blob);
+
+  // 创建一个临时的 <a> 标签，用于触发下载
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename; // 设置下载文件名
+  document.body.appendChild(a); // 将 <a> 标签添加到文档中
+  a.click(); // 模拟点击下载
+
+  // 下载完成后移除 <a> 标签和 URL 对象
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url); // 释放 URL 对象
+};
 
 export {
     applicationProvider,

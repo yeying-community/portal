@@ -157,7 +157,7 @@ const search = async () => {
             }
             let res = await $application.myApplyList(userInfo?.metadata?.did)
             // 过滤出审批通过的
-            const applicant = `${userInfo?.metadata?.did}::${userInfo?.metadata?.did}`
+            const applicant = `${userInfo?.metadata?.did}::${userInfo?.metadata?.name}`
             let auditMyApply: AuditAuditDetail[] = await $audit.search({applicant: applicant})
             auditMyApply = auditMyApply.filter((item) => item.meta?.reason === '申请使用')
             let resApp: AuditDetailBox[] = convertAuditMetadata(auditMyApply)

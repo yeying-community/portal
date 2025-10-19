@@ -1,5 +1,6 @@
 import { indexedCache } from './account'
 import { userInfo } from '@/plugins/account'
+import $audit from '@/plugins/audit'
 
 export const ApplyStatusMap = {
     1: '申请中',
@@ -269,6 +270,14 @@ class $service {
     }
 
     async unbind(uid: string) {
+        // 删除审批记录
+        const applicant = `${userInfo?.metadata?.did}::${userInfo?.metadata?.name}`
+        const detail = await $audit.search({applicant: applicant})
+        const auditUids = detail.filter((d) => d.meta.appOrServiceMetadata.includes(`"name":"${res.name}"`)).map((s) => s.meta.uid)
+        // 删除申请
+        for (const item of auditUids) {
+            await $audit.cancel(item)
+        }
         await indexedCache.deleteByKey('services_apply', uid)
     }
 }

@@ -51,7 +51,6 @@
   import { setLanguage } from "@yeying-community/yeying-i18n";
   
   const changeLang = async (code) => {
-    console.log("code", code);
     await setLanguage(code);
     location.reload();
   };
