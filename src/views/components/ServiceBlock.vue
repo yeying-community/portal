@@ -215,7 +215,7 @@ import Popover from '@/views/components/Popover.vue'
 import ApplyUseModal from './ApplyUseModal.vue'
 import ConfigServiceModal from './ConfigServiceModal.vue'
 import ResultChooseModal from './ResultChooseModal.vue'
-import { userInfo } from '@/plugins/account'
+import { exportIdentityInfo, userInfo } from '@/plugins/account'
 import $audit, { AuditAuditMetadata } from '@/plugins/audit'
 import $service from '@/plugins/service'
 import { generateUuid, getCurrentUtcString } from '@/utils/common'
@@ -317,7 +317,12 @@ const toList = () => {
     innerVisible.value = false
 }
 
-const exportIdentity = () => {}
+const exportIdentity = async () => {
+    if (props.pageFrom === 'myCreate') {
+        const detailRst = await $service.myCreateDetailByUid(props.detail?.uid)
+        await exportIdentityInfo(detailRst.did, detailRst.name)
+    }
+}
 const toDetail = () => {
     router.push({
         path: '/market/service-detail',
