@@ -131,8 +131,6 @@ const search = async () => {
                 return
             }
             const res = await $service.myApplyList(userInfo?.metadata?.did)
-            console.log(`auditMyApply=${JSON.stringify(res)}`)
-
             if (Array.isArray(res)) {
                 serviceList.value = res
             } else {

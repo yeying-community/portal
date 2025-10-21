@@ -151,7 +151,7 @@ const onReset = (formEl: any) => {
 const tableData = ref<AuditDetailBox[]>([])
 
 const search = async () => {
-    const approver = `${userInfo?.metadata?.did}::${userInfo?.metadata?.did}`
+    const approver = `${userInfo?.metadata?.did}::${userInfo?.metadata?.name}`
     const auditMyApply: AuditAuditDetail[] = await $audit.search({approver: approver, name: formInline.appName})
 
     let res: AuditDetailBox[] = convertAuditMetadata(auditMyApply)

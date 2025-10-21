@@ -126,10 +126,8 @@ const changeType = (select) => {
 }
 const handleSubmit = async () => {
   // const info = await $surpport?.handleContact?.(form)
-    console.log(1111111111,info,info2)
 }
 const test = (input) => {
-  console.log(input)
   input.target.setCustomValidity('it is required')
   // setCustomValidity('必须填写！');
 }

@@ -145,7 +145,7 @@ function convertApplicationMetadata(auditMyApply: AuditAuditDetail[]) {
 }
 
 const search = async () => {
-    const approver = `${userInfo?.metadata?.did}::${userInfo?.metadata?.did}`
+    const approver = `${userInfo?.metadata?.did}::${userInfo?.metadata?.name}`
     const auditMyApply: AuditAuditDetail[] = await $audit.search({approver: approver})
     let res: AuditDetailBox[] = convertApplicationMetadata(auditMyApply)
     if (props.pageTabFrom === 'finishApproval') {

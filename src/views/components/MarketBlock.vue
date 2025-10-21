@@ -201,7 +201,7 @@ import { useRouter } from 'vue-router'
 import $audit, { AuditAuditMetadata } from '@/plugins/audit'
 import { SuccessFilled } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
-import { userInfo } from '@/plugins/account'
+import $account, { exportIdentityInfo, userInfo } from '@/plugins/account'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { h } from 'vue'
 import Popover from '@/views/components/Popover.vue'
@@ -322,7 +322,12 @@ const toEdit = () => {
  * 我创建的-导出身份
  * todo 学虎
  */
-const exportIdentity = () => {}
+const exportIdentity = async () => {
+    if (props.pageFrom === 'myCreate') {
+        const detailRst = await $application.myCreateDetailByUid(props.detail?.uid)
+        await exportIdentityInfo(detailRst.did, detailRst.name)
+    }
+}
 const toDetail = () => {
     router.push({
         path: '/market/apply-detail',
@@ -357,7 +362,7 @@ const handleOffline = async () => {
             type: 'success'
         })
         props.refreshCardList()
-        const applicant = `${userInfo?.metadata?.did}::${userInfo?.metadata?.did}`
+        const applicant = `${userInfo?.metadata?.did}::${userInfo?.metadata?.name}`
         const detail = await $audit.search({applicant: applicant})
         const auditUids = detail.filter((d) => d.meta.appOrServiceMetadata.includes(`"name":"${props.detail?.name}"`)).map((s) => s.meta.uid)
         // 删除申请

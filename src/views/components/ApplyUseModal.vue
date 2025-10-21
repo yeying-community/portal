@@ -130,8 +130,8 @@ const submitForm = () => {
             return
           }
         }
-        const applicant = `${userInfo?.metadata?.did}::${userInfo?.metadata?.did}`
-        const approver = `${props.detail?.owner}::${props.detail?.owner}`
+        const applicant = `${userInfo?.metadata?.did}::${userInfo?.metadata?.name}`
+        const approver = `${props.detail?.owner}::${props.detail?.ownerName}`
         const auditUid = generateUuid()
         detailRst.operateType = props.operateType
         const meta: AuditAuditMetadata = {
