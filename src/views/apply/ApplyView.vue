@@ -56,6 +56,7 @@ import { userInfo } from '@/plugins/account'
 import $audit, { AuditAuditDetail, AuditAuditMetadata, convertAuditMetadata } from '@/plugins/audit'
 import { notifyError } from '@/utils/message'
 import { AuditDetailBox } from '@/stores/audit'
+import { getCurrentAccount } from '@/plugins/auth'
 
 const searchVal = ref<string>('')
 const activeService = ref<string>('market')
@@ -93,55 +94,18 @@ const handleTabClick = (tab: Tab) => {
     pagination.value.page = 1
 }
 
-function cvData(auditMyApply: AuditAuditDetail) {
-    if (auditMyApply === undefined || auditMyApply.meta === undefined || auditMyApply.meta.appOrServiceMetadata === undefined) {
-        return null
-    }
-    
-    const rawData = JSON.parse(auditMyApply.meta.appOrServiceMetadata);
-    const metadata: ApplicationMetadata = {
-        owner: rawData.owner,
-        ownerName: rawData.ownerName,
-        did: rawData.did,
-        version: rawData.version,
-        hash: rawData.hash,
-        name: rawData.name,
-        code: rawData.code,
-        description: rawData.description,
-        location: rawData.location,
-        serviceCodes: rawData.serviceCodes,
-        avatar: rawData.avatar,
-        codePackagePath: rawData.codePackagePath,
-        network: rawData.network || '',
-        address: rawData.address || '',
-        createdAt: rawData.createdAt || '',
-        updatedAt: rawData.updatedAt || '',
-        signature: rawData.signature || '',
-    };
-    return metadata
- 
-}
-
-function convertApplicationMetadata(auditMyApply: AuditAuditDetail[]) {
-    return auditMyApply
-        .map(data => cvData(data))
-        .filter((a): a is ApplicationMetadata => a !== undefined && a !== null)
-}
-
-function getName(box: AuditDetailBox) {
-    return box.name
-}
-
 const search = async () => {
     try {
         let condition = { keyword: searchVal.value, status: "APPLICATION_STATUS_ONLINE" }
-
+        const account = getCurrentAccount()
+        if (account === undefined || account === null) {
+            notifyError("❌未查询到当前账户，请登录")
+            return
+        }
+        console.log(`activeService.value=${activeService.value}`)
+        applicationList.value = []
         if (activeService.value === 'myCreate') {
-            if (userInfo?.metadata?.did === undefined) {
-                notifyError('❌登录失败，did is undefined')
-                return
-            }
-            const res = await $application.myCreateList(userInfo?.metadata?.did)
+            const res = await $application.myCreateList(account)
             if (Array.isArray(res)) {
                 applicationList.value = res
             } else {
@@ -151,17 +115,13 @@ const search = async () => {
             pagination.value.total = 0
             return;
         } else if (activeService.value === 'myApply') {
-            if (userInfo?.metadata?.did === undefined) {
-                notifyError('❌登录失败，did is undefined')
-                return
-            }
-            let res = await $application.myApplyList(userInfo?.metadata?.did)
+            let res = await $application.myApplyList(account)
             // 过滤出审批通过的
-            const applicant = `${userInfo?.metadata?.did}::${userInfo?.metadata?.name}`
+            const applicant = `${account}::${account}`
             let auditMyApply: AuditAuditDetail[] = await $audit.search({applicant: applicant})
             auditMyApply = auditMyApply.filter((item) => item.meta?.reason === '申请使用')
             let resApp: AuditDetailBox[] = convertAuditMetadata(auditMyApply)
-            let names: string[] = resApp.filter((s) => s.state === '审批通过' && s.serviceType === 'application').map(a => getName(a))
+            let names: string[] = resApp.filter((s) => s.state === '审批通过' && s.serviceType === 'application').map(a => a.name)
             res = res.filter((b) => names.includes(b.name))
             if (Array.isArray(res)) {
                 applicationList.value = res
@@ -181,8 +141,8 @@ const search = async () => {
         }
         pagination.value.total = 0
     } catch (error) {
-        console.error('获取应用列表失败', error)
-        notifyError('❌ 获取应用列表失败')
+        console.error('❌获取应用列表失败', error)
+        notifyError(`❌获取应用列表失败 ${error}`)
     }
 }
 

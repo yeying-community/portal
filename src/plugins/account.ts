@@ -1,57 +1,20 @@
 import { IndexedCache } from '@yeying-community/yeying-next'
-
-import {
-    NamespaceProvider,
-    Uploader,
-    LinkProvider,
-    ApplicationProvider,
-    AuditProvider,
-    ServiceProvider
-} from '@yeying-community/yeying-client-ts'
-
 import { $account } from '@yeying-community/yeying-wallet'
-import $service from "@/plugins/service";
-import { createIdentity, Identity, IdentityApplicationExtend, IdentityCodeEnum, IdentityTemplate, NetworkTypeEnum, SecurityAlgorithm, serializeIdentityToJson, verifyIdentity } from '@yeying-community/yeying-web3';
+import { createIdentity, Identity, IdentityApplicationExtend, IdentityCodeEnum, IdentityTemplate, NetworkTypeEnum, serializeIdentityToJson, verifyIdentity } from '@yeying-community/yeying-web3';
+import { getCurrentAccount } from './auth';
+import { notifyError } from '@/utils/message';
 
-
-let namespaceProvider = null
-let uploader = null
-let linkProvider = null
-let applicationProvider = null
-let userInfo: Identity | null | undefined = null
-let auditProvider = null
-let serviceCenterProvider = null
 let indexedCache: IndexedCache = new IndexedCache('yeying-protal', 1)
+let currentAccount = null
+let userInfo = null
 
 // 初始化提供者
 async function initializeProviders() {
-    userInfo = await $account.getActiveIdentity()
-    const did = userInfo?.metadata?.did
-    let blockAddress = null
-    if (did) {
-        blockAddress = await $account.getBlockAddress(did)
+    // userInfo = await $account.getActiveIdentity()
+    currentAccount = getCurrentAccount()
+    if (currentAccount === undefined || currentAccount === null) {
+        notifyError(`❌未检测到账户信息，请连接钱包进行登录`)
     }
-    if (!blockAddress) return
-    let warehouse = null
-    let serviceProvider = null
-    if (blockAddress) {
-        serviceProvider = await $service.search({"code": "SERVICE_CODE_NODE"})
-        warehouse = await $service.search({"code": "SERVICE_CODE_WAREHOUSE"})
-    }
-    const securityAlgorithm = userInfo?.securityConfig?.algorithm as SecurityAlgorithm
-    const serviceProviderOption = {
-        proxy: serviceProvider && serviceProvider[1] && serviceProvider[1].proxy,
-        blockAddress
-    }
-    const warehouseProviderOption = {
-        proxy: warehouse && warehouse[0] && warehouse[0].proxy,
-        blockAddress
-    }
-    namespaceProvider = new NamespaceProvider(warehouseProviderOption)
-    uploader = new Uploader(warehouseProviderOption, securityAlgorithm)
-    linkProvider = new LinkProvider(warehouseProviderOption)
-    applicationProvider = new ApplicationProvider(serviceProviderOption)
-    
     await indexedCache.open([
         {
             // 表名
@@ -86,9 +49,6 @@ async function initializeProviders() {
             indexes: [{ keyPath: 'applyOwner', name: 'applyOwner', unique: false }]
         }
     ])
-
-    auditProvider = new AuditProvider(serviceProviderOption)
-    serviceCenterProvider = new ServiceProvider(serviceProviderOption)
 }
 
 export class LocalCache {
@@ -184,13 +144,8 @@ const downloadTextFile = (filename: string, text: any) => {
 };
 
 export {
-    applicationProvider,
     initializeProviders,
-    namespaceProvider,
-    uploader,
-    linkProvider,
-    auditProvider,
-    userInfo,
-    serviceCenterProvider,
-    indexedCache
+    indexedCache,
+    currentAccount,
+    userInfo
 }

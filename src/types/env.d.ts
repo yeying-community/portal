@@ -9,6 +9,7 @@ interface ImportMetaEnv {
   readonly VITE_MINIO_AVATAR: string
   readonly VITE_MINIO_HTTP_PROTOCOL: string
   readonly VITE_MINIO_PORT: string
+  readonly VITE_APPLICANT: string
 }
 
 interface ImportMeta {

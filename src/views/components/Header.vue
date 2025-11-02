@@ -14,6 +14,9 @@
               <span class="iconfont icon-horizon scale-125"/>
             </button>
           </div> -->
+        <div>
+            <el-button type="primary" size="large"  @click="connectWalletClick()">连接钱包</el-button>
+        </div>
     </div>
 </template>
 <script lang="ts" setup>
@@ -21,12 +24,20 @@
 // import UserMenu from '@/components/common/UserMenu.vue'
 // import {useProfileStore} from '@/stores/index'
 // const profileStore = useProfileStore()
-import { useRouter } from 'vue-router'
-const router = useRouter();
+import { connectWallet } from '@/plugins/auth';
+import { useRouter, useRoute } from 'vue-router'
 
-const go = (url) => {
+const router = useRouter();
+const route = useRoute();
+
+const go = async (url: string) => {
     router.push(url)
 }
+
+async function connectWalletClick() {
+    await connectWallet(router, route)
+}
+
 </script>
 <style scoped lang="less">
 .header{

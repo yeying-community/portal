@@ -1,6 +1,9 @@
 import { indexedCache } from './account'
 import { userInfo } from '@/plugins/account'
 import $audit from '@/plugins/audit'
+import { getCurrentAccount } from './auth'
+import { notifyError } from '@/utils/message'
+const token = localStorage.getItem("authToken")
 
 export const ApplyStatusMap = {
     1: '申请中',
@@ -126,13 +129,14 @@ class $service {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                "authorization": `Bearer ${token}`,
                 'accept': 'application/json'
             },
             body: JSON.stringify(body),
         });
         
         if (!response.ok) {
-            throw new Error(`Failed to create post: ${response.status}`);
+            throw new Error(`Failed to create post: ${response.status} error: ${await response.text()}`);
         }
 
         const r =  await response.json();
@@ -140,7 +144,6 @@ class $service {
     }
 
     async create(params: ServiceMetadata) {
-        params.ownerName = userInfo?.metadata?.name
         await indexedCache.insert('services', params)
     }
 
@@ -160,7 +163,6 @@ class $service {
     }
 
     async myCreateUpdate(params) {
-        params.ownerName = userInfo?.metadata?.name
         return await indexedCache.updateByKey("services", {
             uid: params.uid,
             ...params
@@ -190,13 +192,14 @@ class $service {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                "authorization": `Bearer ${token}`,
                 'accept': 'application/json'
             },
             body: JSON.stringify(body),
         });
         
         if (!response.ok) {
-            throw new Error(`Failed to create post: ${response.status}`);
+            throw new Error(`Failed to create post: ${response.status} error: ${await response.text()}`);
         }
 
         const r =  await response.json();
@@ -223,13 +226,14 @@ class $service {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                "authorization": `Bearer ${token}`,
                 'accept': 'application/json'
             },
             body: JSON.stringify(body),
         });
         
         if (!response.ok) {
-            throw new Error(`Failed to create post: ${response.status}`);
+            throw new Error(`Failed to create post: ${response.status} error: ${await response.text()}`);
         }
 
         const r =  await response.json();
@@ -237,7 +241,6 @@ class $service {
     }
 
     async myApplyCreate(params: ServiceMetadata) {
-        params.ownerName = userInfo?.metadata?.name
         await indexedCache.insert('services_apply', params)
     }
 
@@ -256,13 +259,14 @@ class $service {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                "authorization": `Bearer ${token}`,
                 'accept': 'application/json'
             },
             body: JSON.stringify(body),
         });
         
         if (!response.ok) {
-            throw new Error(`Failed to create post: ${response.status}`);
+            throw new Error(`Failed to create post: ${response.status} error: ${await response.text()}`);
         }
 
         const r =  await response.json();
@@ -270,8 +274,13 @@ class $service {
     }
 
     async unbind(uid: string) {
+        const account = getCurrentAccount()
+        if (account === undefined || account === null) {
+            notifyError("❌未查询到当前账户，请登录")
+            return
+        }
         // 删除审批记录
-        const applicant = `${userInfo?.metadata?.did}::${userInfo?.metadata?.name}`
+        const applicant = `${account}::${account}`
         const detail = await $audit.search({applicant: applicant})
         const auditUids = detail.filter((d) => d.meta.appOrServiceMetadata.includes(`"name":"${res.name}"`)).map((s) => s.meta.uid)
         // 删除申请

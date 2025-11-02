@@ -45,6 +45,7 @@ import $service from '@/plugins/service'
 import { notifyError } from '@/utils/message';
 import { v4 as uuidv4 } from 'uuid';
 import { AuditDetailBox, useDataStore } from '@/stores/audit'
+import { getCurrentAccount } from '@/plugins/auth';
 
 const store = useDataStore()
 const formRef = ref<InstanceType<typeof ElForm> | null>(null);
@@ -124,7 +125,12 @@ function convertApplicationMetadata(auditMyApply: AuditAuditDetail[]) {
 const tableData = ref<AuditDetailBox[]>([])
 
 const searchWaitApply = async () => {
-    const approver = `${userInfo?.metadata?.did}::${userInfo?.metadata?.did}`
+    const account = getCurrentAccount()
+    if (account === undefined || account === null) {
+        notifyError("❌未查询到当前账户，请登录")
+        return
+    }
+    const approver = `${account}::${account}`
     const auditMyApply: AuditAuditDetail[] = await $audit.search({approver: approver})
 
     let res: AuditDetailBox[] = convertApplicationMetadata(auditMyApply)
@@ -176,23 +182,6 @@ const submitForm = () => {
                         }
         
                     }
-                    //  else if (reasonRes.meta.reason === '申请使用') {
-                    //     try {
-                    //         const detailRst = await $application.detail(appOrService.did, appOrService.version)
-                    //         if (detailRst === undefined || detailRst === null) {
-                    //             notifyError("❌应用不存在")
-                    //             return
-                    //         }
-                    //         detailRst.applyOwner = userInfo?.metadata?.did
-                    //         detailRst.uid = uuidv4()
-
-                    //         const r = await $application.myApplyCreate(detailRst)
-                    //         console.log(`r=${JSON.stringify(r)}`)
-                    //     } catch (e) {
-                    //         notifyError(`❌创建申请的应用/服务异常，error=${e}`)
-                    //     }
-                    // }
-                    
                 } catch (e) {
                     console.log(e)
                 }

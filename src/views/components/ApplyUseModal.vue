@@ -65,6 +65,7 @@ import { notifyError } from '@/utils/message'
 import { v4 as uuidv4 } from 'uuid';
 import { generateUuid, getCurrentUtcString } from '@/utils/common'
 import { ElMessageBox } from 'element-plus'
+import { getCurrentAccount } from '@/plugins/auth'
 
 const mainMsg = ref<string>()
 const innerVisible = ref(false)
@@ -92,16 +93,16 @@ const props = defineProps({
  * 表单提交
  */
 const submitForm = () => {
+  const account = getCurrentAccount()
+  if (account === undefined || account === null) {
+      notifyError("❌未查询到当前账户，请登录")
+      return
+  }
   if (formRef.value === undefined || formRef.value === null) {
     return
   }
   formRef.value.validate(async (valid: boolean) => {
     if (valid) {
-      const applyReason = form.reason
-      const params = {
-        sourceDid: userInfo?.metadata?.did,
-        reason: applyReason,
-      }
         let detailRst = null
         if (props.operateType === `application`) {
           detailRst = await $application.detail(props.detail?.did, props.detail?.version)
@@ -110,7 +111,7 @@ const submitForm = () => {
               return
           }
 
-          const r = await $application.myApplyList(userInfo?.metadata?.did)
+          const r = await $application.myApplyList(account)
           const names: string[] = r.map((d) => d.name)
           if (names.includes(detailRst.name)) {
             notifyError("❌申请使用已经提交，请勿重复操作")
@@ -123,14 +124,14 @@ const submitForm = () => {
               return
           }
 
-          const r = await $service.myApplyList(userInfo?.metadata?.did)
+          const r = await $service.myApplyList(account)
           const names: string[] = r.map((d) => d.name)
           if (names.includes(detailRst.name)) {
             notifyError("❌申请使用已经提交，请勿重复操作")
             return
           }
         }
-        const applicant = `${userInfo?.metadata?.did}::${userInfo?.metadata?.name}`
+        const applicant = `${account}::${account}`
         const approver = `${props.detail?.owner}::${props.detail?.ownerName}`
         const auditUid = generateUuid()
         detailRst.operateType = props.operateType
@@ -161,7 +162,7 @@ const submitForm = () => {
                 notifyError("❌应用不存在")
                 return
             }
-            detailRstApp.applyOwner = userInfo?.metadata?.did
+            detailRstApp.applyOwner = account
             detailRstApp.uid = uuidv4()
             const r = await $application.myApplyCreate(detailRstApp)
           } else if (props.operateType === `service`) {
@@ -170,7 +171,7 @@ const submitForm = () => {
                 notifyError("❌服务不存在")
                 return
             }
-            detailRstService.applyOwner = userInfo?.metadata?.did
+            detailRstService.applyOwner = account
             detailRstService.uid = uuidv4()
             const r = await $service.myApplyCreate(detailRstService)
             innerVisible.value = true

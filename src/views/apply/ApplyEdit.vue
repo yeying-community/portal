@@ -179,6 +179,7 @@ import { generateIdentity, userInfo } from '@/plugins/account'
 import { v4 as uuidv4 } from 'uuid';
 import { notifyError } from '@/utils/message'
 import $minio  from "@/plugins/minio";
+import { getCurrentAccount } from '@/plugins/auth'
 
 const defaultAvatar = import.meta.env.VITE_MINIO_AVATAR
 const protocol = import.meta.env.VITE_MINIO_HTTP_PROTOCOL
@@ -287,13 +288,18 @@ const getDetailInfo = async () => {
 }
 
 const submitForm = async (formEl, andOnline) => {
+    const account = getCurrentAccount()
+    if (account === undefined || account === null) {
+        notifyError("❌未查询到当前账户，请登录")
+        return
+    }
     if (!formEl) return
     detailInfo.value.avatar = imageUrl.value
     detailInfo.value.codePackagePath = codeUrl.value
     await formEl.validate(async (valid: boolean, fields) => {
         if (valid) {
             const params = JSON.parse(JSON.stringify(detailInfo.value))
-            const existsList = await $application.myCreateList(userInfo?.metadata?.did)
+            const existsList = await $application.myCreateList(account)
             if (Array.isArray(existsList)) {
                 for (const item of existsList) {
                     if (item.name === params.name) {
@@ -311,8 +317,8 @@ const submitForm = async (formEl, andOnline) => {
                 rr.description = params.description
                 rr.location = params.location
                 rr.name = params.name
-                rr.owner = userInfo?.metadata?.did
-                rr.ownerName = userInfo?.metadata?.name
+                rr.owner = account
+                rr.ownerName = account
                 rr.serviceCodes = params.serviceCodes
                 const myCreateUpdate = await $application.myCreateUpdate(rr)
                 if (!andOnline) {
@@ -325,16 +331,16 @@ const submitForm = async (formEl, andOnline) => {
                 }
             } else {
                 if (params.password !== params.password2) {
-                    notifyError("2次密码输入不一致")
+                    notifyError("❌2次密码输入不一致")
                     return
                 }
                 params.uid = uuidv4()
                 const identity = await generateIdentity(params.code, params.serviceCodes, params.location, params.hash, params.name, params.description,params.avatar, params.password)
                 params.did = identity.metadata?.did
                 params.version = identity?.metadata?.version
-                params.owner = userInfo?.metadata?.did
-                params.ownerName = userInfo?.metadata?.name
-                const result = await $application.create(params)
+                params.owner = account
+                params.ownerName = account
+                await $application.create(params)
                 innerVisible.value = true
             }
         } else {

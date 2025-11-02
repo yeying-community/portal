@@ -1,3 +1,4 @@
+const token = localStorage.getItem("authToken")
 
 const endpoint = import.meta.env.VITE_API_ENDPOINT
 
@@ -17,13 +18,14 @@ class $minio {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                "authorization": `Bearer ${token}`,
                 'accept': 'application/json'
             },
             body: JSON.stringify(body),
         });
         
         if (!response.ok) {
-            throw new Error(`Failed to create post: ${response.status}`);
+            throw new Error(`Failed to create post: ${response.status} error: ${await response.text()}`);
         }
 
         const r =  await response.json();
