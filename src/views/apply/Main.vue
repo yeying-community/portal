@@ -29,6 +29,7 @@
 import { ref, watch } from "vue";
 import { RouterView, useRouter, useRoute } from "vue-router";
 import { Menu, Operation, Document } from "@element-plus/icons-vue";
+import { notifyError } from "@/utils/message";
 
 const router = useRouter();
 const route = useRoute();
@@ -63,7 +64,7 @@ watch(
   { deep: true, immediate: true }
 );
 
-const changeRouter = (url) => {
+const changeRouter = (url: string) => {
   router.push(url);
   if (sidebarOpen.value) {
     sidebarOpen.value = false;
@@ -73,6 +74,11 @@ const changeRouter = (url) => {
 const toggleSidebar = () => {
   sidebarOpen.value = !sidebarOpen.value;
 };
+
+
+
+
+
 </script>
 
 <style scoped lang="less">

@@ -10,6 +10,9 @@ import { createWallet, sdkRoutes } from '@yeying-community/yeying-wallet'
 import { initializeProviders } from '@/plugins/account'
 import ElementPlus from 'element-plus'
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
+import { notifyError, notifySuccess } from './utils/message'
+import { getWalletDataStore } from '@/stores/auth'
+import { waitForWallet } from './plugins/auth'
 
 const app = createApp(App)
 
@@ -22,22 +25,37 @@ app.config.globalProperties.$t = t
 
 // 合并路由
 const router: Router = createRouter({
-    history: createWebHistory(import.meta.env.BASE_URL),
+    history: createWebHistory(),
     routes: [...routes, ...sdkRoutes]
 })
-// 需要登录就需要添加这个路由守卫,如果是不是公开路由，并且没有登录，跳转到登录页面
-// sdkSetupRouter(router) // sdk路由守卫
-// setupRouter(router) // 项目路由守卫
+
 app.use(router)
-// sdk初始化调用
-createWallet(router, initializeProviders, {
-    // 登录成功回调
-    onLoginSuccess: (account: any) => {
-        console.log('登录成功', account)
-    },
-    // 创建身份成功回调
-    onCreateSuccess: (account: any) => {
-        console.log('注册成功', account)
-    }
-})
-app.mount('#app')
+// 页面加载时检测钱包
+window.addEventListener('load', async () => {
+  try {
+    await waitForWallet();
+    getWalletDataStore().setWalletReady(true)
+  } catch (error) {
+    console.error('钱包检测失败:', error);
+    const innerHTML = `
+        <p>❌ 未检测到钱包</p>
+        <p class="error">请确保：</p>
+        <ul>
+        <li>•已安装 YeYing Wallet 扩展</li>
+        <li>•已启用扩展</li>
+        <li>•已在扩展设置中允许访问文件 URL（如果使用 file:// 协议）</li>
+        <li>•刷新页面后重试</li>
+        </ul>
+    `;
+    notifyError(innerHTML)
+  }
+});
+initializeProviders()
+  .then(() => {
+    app.mount('#app')
+  })
+  .catch((error) => {
+    console.error('Failed to initialize providers:', error)
+    // 可以显示错误页面或提示
+    app.mount('#app') // 即使失败也挂载，避免白屏
+  })

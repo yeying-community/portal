@@ -212,6 +212,7 @@ import { generateUuid, getCurrentUtcString } from '@/utils/common'
 import $application, { ApplicationMetadata } from '@/plugins/application'
 import { notifyError } from '@/utils/message'
 import { v4 as uuidv4 } from 'uuid';
+import { getCurrentAccount } from '@/plugins/auth'
 
 const StatusInfo = {
     online: {
@@ -248,7 +249,14 @@ const props = defineProps({
     pageFrom: String
 })
 
-const isOwner = userInfo?.metadata?.did === props.detail?.owner
+const isOwner = () => {
+    const account = getCurrentAccount()
+    if (account === undefined || account === null) {
+        notifyError("❌未查询到当前账户，请登录")
+        return false
+    }
+    return account === props.detail?.owner
+}
 
 // 解绑应用
 const confirmUnbind = async () => {
@@ -362,7 +370,12 @@ const handleOffline = async () => {
             type: 'success'
         })
         props.refreshCardList()
-        const applicant = `${userInfo?.metadata?.did}::${userInfo?.metadata?.name}`
+        const account = getCurrentAccount()
+        if (account === undefined || account === null) {
+            notifyError("❌未查询到当前账户，请登录")
+            return
+        }
+        const applicant = `${account}::${account}`
         const detail = await $audit.search({applicant: applicant})
         const auditUids = detail.filter((d) => d.meta.appOrServiceMetadata.includes(`"name":"${props.detail?.name}"`)).map((s) => s.meta.uid)
         // 删除申请
@@ -427,8 +440,13 @@ const handleOnline = () => {
              */
             const detailRst = await $application.myCreateDetailByUid(props.detail.uid)
             // 重复申请检查
-            const applicant = `${userInfo?.metadata?.did}::${userInfo?.metadata?.name}`
-            const approver = 'did:ethr:0x07e4:0x036bc5c8f6807d1c550b383b7c20038b1fee4e0e2e5e9bbf53db1961ad9189246e::tiger'// 审批人身份，list[did::name]，先写死，固定的审批人，后续改成从 kv 配置表里获取
+            const account = getCurrentAccount()
+            if (account === undefined || account === null) {
+                notifyError("❌未查询到当前账户，请登录")
+                return
+            }
+            const applicant = `${account}::${account}`
+            const approver = import.meta.env.VITE_APPLICANT
             let searchList = await $audit.search({name: detailRst.name})
             searchList = searchList.filter((a) => a.meta.applicant === applicant && a.meta.appOrServiceMetadata.includes(`"operateType":"application"`))
             if (searchList.length > 0) {

@@ -70,7 +70,8 @@ import ServiceBlock from "@/views/components/ServiceBlock.vue";
 import { useRouter, useRoute, RouteLocationAsPathGeneric, RouteLocationAsRelativeGeneric } from 'vue-router'
 import { notifyError } from "@/utils/message";
 import { userInfo } from '@/plugins/account'
-
+import { getCurrentAccount } from "@/plugins/auth";
+import $audit, { AuditAuditDetail, AuditDetailBox, convertAuditMetadata } from "@/plugins/audit";
 const searchVal = ref<string>("");
 const activeService = ref<string>("market");
 const serviceList = ref<ServiceMetadata[]>([])
@@ -110,13 +111,13 @@ const handleTabClick = (tab: Tab) => {
 const search = async () => {
   try {
         let condition = { keyword: searchVal.value, status: "APPLICATION_STATUS_ONLINE" }
-
+        const account = getCurrentAccount()
+        if (account === undefined || account === null) {
+            notifyError("❌未查询到当前账户，请登录")
+            return
+        }
         if (activeService.value === 'myCreate') {
-            if (userInfo?.metadata?.did === undefined) {
-                notifyError('❌登录失败，did is undefined')
-                return
-            }
-            const res = await $service.myCreateList(userInfo?.metadata?.did)
+            const res = await $service.myCreateList(account)
             if (Array.isArray(res)) {
                 serviceList.value = res
             } else {
@@ -126,11 +127,14 @@ const search = async () => {
             pagination.value.total = 0
             return;
         } else if (activeService.value === 'myApply') {
-            if (userInfo?.metadata?.did === undefined) {
-                notifyError('❌登录失败，did is undefined')
-                return
-            }
-            const res = await $service.myApplyList(userInfo?.metadata?.did)
+            let res = await $service.myApplyList(account)
+            // 过滤出审批通过的
+            const applicant = `${account}::${account}`
+            let auditMyApply: AuditAuditDetail[] = await $audit.search({applicant: applicant})
+            auditMyApply = auditMyApply.filter((item) => item.meta?.reason === '申请使用')
+            let resApp: AuditDetailBox[] = convertAuditMetadata(auditMyApply)
+            let names: string[] = resApp.filter((s) => s.state === '审批通过' && s.serviceType === 'service').map(a => a.name)
+            res = res.filter((b) => names.includes(b.name))
             if (Array.isArray(res)) {
                 serviceList.value = res
             } else {
@@ -149,8 +153,8 @@ const search = async () => {
         }
         pagination.value.total = 0
     } catch (error) {
-        console.error('获取应用列表失败', error)
-        notifyError('❌ 获取应用列表失败')
+        console.error('❌获取服务列表失败', error)
+        notifyError(`❌获取服务列表失败 ${error}`)
     }
 };
 

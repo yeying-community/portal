@@ -52,6 +52,8 @@ import { ref, reactive, onMounted, watch } from 'vue'
 import { userInfo } from '@/plugins/account'
 import $audit, { AuditAuditDetail, AuditCommentMetadata, AuditCommentStatusEnum } from '@/plugins/audit'
 import { AuditDetailBox, useDataStore } from '@/stores/audit'
+import { notifyError } from '@/utils/message'
+import { getCurrentAccount } from '@/plugins/auth'
 
 const store = useDataStore()
 
@@ -145,20 +147,31 @@ function convertApplicationMetadata(auditMyApply: AuditAuditDetail[]) {
 }
 
 const search = async () => {
-    const approver = `${userInfo?.metadata?.did}::${userInfo?.metadata?.name}`
-    const auditMyApply: AuditAuditDetail[] = await $audit.search({approver: approver})
-    let res: AuditDetailBox[] = convertApplicationMetadata(auditMyApply)
-    if (props.pageTabFrom === 'finishApproval') {
-        res = res.filter((s) => s.state === '审批通过' || s.state === '审批驳回')
-    }
-    if (props.pageTabFrom === 'waitApproval') {
-        res = res.filter((s) => s.state === '待审批')
-    }
-    if (Array.isArray(res)) {
-        tableData.value = res
-    } else {
-        console.warn('Expected array, but got:', res)
-        tableData.value = []
+    try {
+        const account = getCurrentAccount()
+        if (account === undefined || account === null) {
+            notifyError("❌未查询到当前账户，请登录")
+            return
+        }
+        const approver = `${account}::${account}`
+        const auditMyApply: AuditAuditDetail[] = await $audit.search({approver: approver})
+        let res: AuditDetailBox[] = convertApplicationMetadata(auditMyApply)
+        if (props.pageTabFrom === 'finishApproval') {
+            res = res.filter((s) => s.state === '审批通过' || s.state === '审批驳回')
+        }
+        if (props.pageTabFrom === 'waitApproval') {
+            res = res.filter((s) => s.state === '待审批')
+        }
+        if (Array.isArray(res)) {
+            tableData.value = res
+        } else {
+            console.warn('Expected array, but got:', res)
+            tableData.value = []
+        }
+    } catch(error) {
+        console.error('❌获取审批列表失败', error)
+        notifyError(`❌获取审批列表失败 ${error}`)
+        
     }
 }
 

@@ -3,6 +3,9 @@ import { setLocalStorage, getLocalStorage } from '@/utils/common'
 import { createIdentity } from '@yeying-community/yeying-web3'
 import { userInfo } from '@/plugins/account'
 import $audit from '@/plugins/audit'
+import { getCurrentAccount } from './auth'
+import { notifyError } from '@/utils/message'
+const token = localStorage.getItem("authToken")
 
 export interface ApplicationDetail {
     name: string
@@ -91,7 +94,6 @@ class $application {
      * @param {*} params 
      */
     async create(params: ApplicationMetadata) {
-        params.ownerName = userInfo?.metadata?.name
         await indexedCache.insert('applications', params)
     }
     /**
@@ -110,7 +112,6 @@ class $application {
     }
 
     async myCreateUpdate(params) {
-        params.ownerName = userInfo?.metadata?.name
         return await indexedCache.updateByKey("applications", {
             uid: params.uid,
             ...params
@@ -160,17 +161,20 @@ class $application {
                 }
             }
         }
+        console.log(`authorization=${localStorage.getItem("authToken")}`)
+        
         const response = await fetch(endpoint + '/api/v1/application/search', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                "authorization": `Bearer ${token}`,
                 'accept': 'application/json'
             },
             body: JSON.stringify(body),
         });
         
         if (!response.ok) {
-            throw new Error(`Failed to create post: ${response.status}`);
+            throw new Error(`Failed to create post: ${response.status} error: ${await response.text()}`);
         }
 
         const r =  await response.json();
@@ -183,7 +187,6 @@ class $application {
     }
 
     async myApplyCreate(params: ApplicationMetadata) {
-        params.ownerName = userInfo?.metadata?.name
         await indexedCache.insert('applications_apply', params)
     }
 
@@ -192,7 +195,6 @@ class $application {
     }
 
     async update(params) {
-        params.ownerName = userInfo?.metadata?.name
         // return await applicationProvider.create(params);
         // return new Promise((resolve, reject) => {
         //   resolve(params)
@@ -234,13 +236,14 @@ class $application {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                "authorization": `Bearer ${token}`,
                 'accept': 'application/json'
             },
             body: JSON.stringify(body),
         });
         
         if (!response.ok) {
-            throw new Error(`Failed to create post: ${response.status}`);
+            throw new Error(`Failed to create post: ${response.status} error: ${await response.text()}`);
         }
 
         const r =  await response.json();
@@ -262,13 +265,14 @@ class $application {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                "authorization": `Bearer ${token}`,
                 'accept': 'application/json'
             },
             body: JSON.stringify(body),
         });
         
         if (!response.ok) {
-            throw new Error(`Failed to create post: ${response.status}`);
+            throw new Error(`Failed to create post: ${response.status} error: ${await response.text()}`);
         }
 
         const r =  await response.json();
@@ -289,13 +293,14 @@ class $application {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                "authorization": `Bearer ${token}`,
                 'accept': 'application/json'
             },
             body: JSON.stringify(body),
         });
         
         if (!response.ok) {
-            throw new Error(`Failed to create post: ${response.status}`);
+            throw new Error(`Failed to create post: ${response.status} error: ${await response.text()}`);
         }
 
         const r =  await response.json();
@@ -303,9 +308,14 @@ class $application {
     }
 
     async unbind(uid: string) {
+        const account = getCurrentAccount()
+        if (account === undefined || account === null) {
+            notifyError("❌未查询到当前账户，请登录")
+            return
+        }
         const res = await indexedCache.getByKey('applications_apply', uid)
         // 删除审批记录
-        const applicant = `${userInfo?.metadata?.did}::${userInfo?.metadata?.name}`
+        const applicant = `${account}::${account}`
         const detail = await $audit.search({applicant: applicant})
         const auditUids = detail.filter((d) => d.meta.appOrServiceMetadata.includes(`"name":"${res.name}"`)).map((s) => s.meta.uid)
         // 删除申请
@@ -331,24 +341,6 @@ class $application {
             }
         }
         return namespaceId
-    }
-    // 创建默认命名空间
-    async creatNameSpace(name) {
-        const info = await namespaceProvider.create(name)
-        return info
-    }
-    // 上传文件
-    async uploads(file, namespaceId) {
-        const asset = await uploader.createAssetMetadataJson(namespaceId, file)
-        const info = await uploader.upload(file, asset, (r) => {
-        })
-        return info
-    }
-    // 创建连接
-    async createLink(data) {
-        const { namespaceId, name, hash, duration, type, visitors = [], description = '' } = data
-        const info = await linkProvider.create(namespaceId, name, hash, duration, type, visitors, description)
-        return info
     }
 }
 

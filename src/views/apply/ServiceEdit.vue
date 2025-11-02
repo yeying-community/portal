@@ -170,6 +170,7 @@ import { notifyError } from '@/utils/message'
 import $service, {codeMap, serviceCodeMap, ServiceMetadata } from '@/plugins/service'
 import { getCurrentUtcString } from '@/utils/common'
 import $minio  from "@/plugins/minio";
+import { getCurrentAccount } from '@/plugins/auth'
 
 const defaultAvatar = import.meta.env.VITE_MINIO_AVATAR
 const protocol = import.meta.env.VITE_MINIO_HTTP_PROTOCOL
@@ -301,13 +302,18 @@ const getDetailInfo = async () => {
 }
 
 const submitForm = async (formEl, andOnline) => {
+    const account = getCurrentAccount()
+    if (account === undefined || account === null) {
+        notifyError("❌未查询到当前账户，请登录")
+        return
+    }
     if (!formEl) return
     detailInfo.value.avatar = imageUrl.value
     detailInfo.value.codePackagePath = codeUrl.value
     await formEl.validate(async (valid: boolean, fields) => {
         if (valid) {
             const params = JSON.parse(JSON.stringify(detailInfo.value))
-            const existsList = await $service.myCreateList(userInfo?.metadata?.did)
+            const existsList = await $service.myCreateList(account)
             if (Array.isArray(existsList)) {
                 for (const item of existsList) {
                     if (item.name === params.name) {
@@ -326,8 +332,8 @@ const submitForm = async (formEl, andOnline) => {
                 rr.proxy = params.proxy
                 rr.name = params.name
                 rr.apiCodes = params.apiCodes
-                rr.owner = userInfo?.metadata?.did
-                rr.ownerName = userInfo?.metadata?.name
+                rr.owner = account
+                rr.ownerName = account
                 const myCreateUpdate = await $service.myCreateUpdate(rr)
                 if (!andOnline) {
                     innerVisible.value = true
@@ -346,15 +352,15 @@ const submitForm = async (formEl, andOnline) => {
                 const identity = await generateIdentity(params.code, params.apiCodes, params.location, params.hash, params.name, params.description,params.avatar, params.password)
                 params.did = identity.metadata?.did
                 params.version = identity?.metadata?.version
-                params.owner = userInfo?.metadata?.did
-                params.ownerName = userInfo?.metadata?.name
+                params.owner = account
+                params.ownerName = account
                 params.createdAt = getCurrentUtcString()
                 params.updatedAt = getCurrentUtcString()
-                const createRes = await $service.create(params)
+                await $service.create(params)
                 innerVisible.value = true
             }
         } else {
-            notifyError(`参数格式不对，${fields}`)
+            notifyError(`❌参数格式不对，${fields}`)
         }
     })
 }
@@ -380,7 +386,7 @@ const changeFile = async (fileType, uploadFile) => {
     // ✅ 关键：获取原始文件对象 raw
     const file = uploadFile.raw || uploadFile
     if (!(file instanceof Blob)) {
-        notifyError('上传文件格式无效')
+        notifyError('❌上传文件格式无效')
         return
     }
     const presignedUrl = await $minio.getUploadUrl(uploadFile.name)
