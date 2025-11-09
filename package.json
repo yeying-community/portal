@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --host 0.0.0.0",
+    "dev": "rm -rf node_modules dist && npm install && npm run build && vite --host 0.0.0.0",
     "build": "vite build",
     "preview": "vite preview",
     "format": "prettier --write \"src/**/*.js\""

@@ -116,8 +116,6 @@ export function convertAuditMetadata(auditMyApply: AuditAuditDetail[]) {
     .filter((item): item is AuditDetailBox => item !== null) // ✅ 过滤 null 并类型收窄
 }
 
-const endpoint = import.meta.env.VITE_API_ENDPOINT
-
 class $audit {
 
     async create(meta: AuditAuditMetadata) {
@@ -130,7 +128,7 @@ class $audit {
                 "meta": meta
             }
         }
-        const response = await fetch(endpoint + '/api/v1/audit/create', {
+        const response = await fetch('/api/v1/audit/create', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -158,7 +156,7 @@ class $audit {
                 "condition": condition
             }
         }
-        const response = await fetch(endpoint + '/api/v1/audit/search', {
+        const response = await fetch('/api/v1/audit/search', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -186,7 +184,7 @@ class $audit {
                 "metadata": metadata
             }
         }
-        const response = await fetch(endpoint + '/api/v1/audit/approve', {
+        const response = await fetch('/api/v1/audit/approve', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -214,7 +212,7 @@ class $audit {
                 "metadata": metadata
             }
         }
-        const response = await fetch(endpoint + '/api/v1/audit/reject', {
+        const response = await fetch('/api/v1/audit/reject', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -242,7 +240,7 @@ class $audit {
                 "uid": uid
             }
         }
-        const response = await fetch(endpoint + '/api/v1/audit/detail', {
+        const response = await fetch('/api/v1/audit/detail', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -270,7 +268,7 @@ class $audit {
                 "uid": uid
             }
         }
-        const response = await fetch(endpoint + '/api/v1/audit/cancel', {
+        const response = await fetch('/api/v1/audit/cancel', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

@@ -136,7 +136,7 @@ export async function getBalance() {
         notifyError(`❌获取余额失败: ${error}`);
     }
 }
-const endpoint = import.meta.env.VITE_API_ENDPOINT
+
 // Challenge 登录
 export async function loginWithChallenge() {
     if (!getWalletDataStore().walletReady) {
@@ -159,7 +159,7 @@ export async function loginWithChallenge() {
                 "address": currentAccount
             }
         }
-        const response = await fetch(endpoint + '/api/v1/auth/challenge', {
+        const response = await fetch('/api/v1/auth/challenge', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -192,7 +192,7 @@ export async function loginWithChallenge() {
                 "signature": signature
             }
         }
-        const verifyRes = await fetch(endpoint + '/api/v1/auth/verify', {
+        const verifyRes = await fetch('/api/v1/auth/verify', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -207,6 +207,9 @@ export async function loginWithChallenge() {
         const token = r2.body.token
         // 4. 保存 Token
         localStorage.setItem('authToken', token);
+
+        // const avatar = await getAvatar(currentAccount)
+        // console.log(`avatar=${avatar}`)
         notifySuccess(`✅登录成功`);
     } catch (error) {
         console.error('❌登录失败:', error);

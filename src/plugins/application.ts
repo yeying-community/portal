@@ -85,8 +85,6 @@ export interface ApplicationSearchCondition {
     keyword?: string;
 }
 
-const endpoint = import.meta.env.VITE_API_ENDPOINT
-
 class $application {
 
     /**
@@ -163,7 +161,7 @@ class $application {
         }
         console.log(`authorization=${localStorage.getItem("authToken")}`)
         
-        const response = await fetch(endpoint + '/api/v1/application/search', {
+        const response = await fetch('/api/v1/application/search', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -232,7 +230,7 @@ class $application {
                 "version": version
             }
         }
-        const response = await fetch(endpoint + '/api/v1/application/detail', {
+        const response = await fetch('/api/v1/application/detail', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -261,7 +259,7 @@ class $application {
                 "version": version
             }
         }
-        const response = await fetch(endpoint + '/api/v1/application/delete', {
+        const response = await fetch('/api/v1/application/delete', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -289,7 +287,7 @@ class $application {
                 "application": application
             }
         }
-        const response = await fetch(endpoint + '/api/v1/application/create', {
+        const response = await fetch('/api/v1/application/create', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
