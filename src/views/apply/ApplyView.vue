@@ -119,7 +119,13 @@ const search = async () => {
             // 过滤出审批通过的
             const applicant = `${account}::${account}`
             let auditMyApply: AuditAuditDetail[] = await $audit.search({applicant: applicant})
+            if (auditMyApply === undefined) {
+                return;
+            }
             auditMyApply = auditMyApply.filter((item) => item.meta?.reason === '申请使用')
+            if (auditMyApply === undefined) {
+                return;
+            }
             let resApp: AuditDetailBox[] = convertAuditMetadata(auditMyApply)
             let names: string[] = resApp.filter((s) => s.state === '审批通过' && s.serviceType === 'application').map(a => a.name)
             res = res.filter((b) => names.includes(b.name))

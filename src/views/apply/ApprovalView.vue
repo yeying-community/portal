@@ -161,7 +161,9 @@ const search = async () => {
         }
         const approver = `${account}::${account}`
         const auditMyApply: AuditAuditDetail[] = await $audit.search({approver: approver, name: formInline.appName})
-
+        if (auditMyApply === undefined) {
+            return
+        }
         let res: AuditDetailBox[] = convertAuditMetadata(auditMyApply)
         if (tabIndex.value === 1) {
             res = res.filter((s) => s.state === '审批通过' || s.state === '审批驳回')

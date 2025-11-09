@@ -155,6 +155,9 @@ const search = async () => {
         }
         const approver = `${account}::${account}`
         const auditMyApply: AuditAuditDetail[] = await $audit.search({approver: approver})
+        if (auditMyApply === undefined) {
+                return;
+            }
         let res: AuditDetailBox[] = convertApplicationMetadata(auditMyApply)
         if (props.pageTabFrom === 'finishApproval') {
             res = res.filter((s) => s.state === '审批通过' || s.state === '审批驳回')

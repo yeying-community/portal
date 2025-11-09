@@ -1,7 +1,5 @@
 const token = localStorage.getItem("authToken")
 
-const endpoint = import.meta.env.VITE_API_ENDPOINT
-
 class $minio {
 
     async getUploadUrl(filename: string) {
@@ -14,7 +12,7 @@ class $minio {
                 "filename": filename
             }
         }
-        const response = await fetch(endpoint + '/api/v1/minio/presigned/upload/url', {
+        const response = await fetch('/api/v1/minio/presigned/upload/url', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

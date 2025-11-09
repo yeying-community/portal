@@ -103,8 +103,6 @@ export interface ServiceMetadata {
 
 }
 
-
-const endpoint = import.meta.env.VITE_API_ENDPOINT
 class $service {
     async search(condition: ServiceSearchCondition, page?: number, pageSize?: number) {
         const header = {
@@ -125,7 +123,7 @@ class $service {
                 }
             }
         }
-        const response = await fetch(endpoint + '/api/v1/service/search', {
+        const response = await fetch('/api/v1/service/search', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -188,7 +186,7 @@ class $service {
                 "service": service
             }
         }
-        const response = await fetch(endpoint + '/api/v1/service/create', {
+        const response = await fetch('/api/v1/service/create', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -222,7 +220,7 @@ class $service {
                 "version": version
             }
         }
-        const response = await fetch(endpoint + '/api/v1/service/detail', {
+        const response = await fetch('/api/v1/service/detail', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -255,7 +253,7 @@ class $service {
                 "version": version
             }
         }
-        const response = await fetch(endpoint + '/api/v1/service/delete', {
+        const response = await fetch('/api/v1/service/delete', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

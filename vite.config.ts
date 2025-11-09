@@ -133,6 +133,10 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/whoami/, "/whoami"), // 替换路径
       },
+      '/api': {
+        target: 'http://121.199.75.42:8080',
+        changeOrigin: true
+      }
     },
   },
 });
