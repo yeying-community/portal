@@ -1,9 +1,7 @@
 import { indexedCache } from './account'
-import { userInfo } from '@/plugins/account'
 import $audit from '@/plugins/audit'
 import { getCurrentAccount } from './auth'
 import { notifyError } from '@/utils/message'
-const token = localStorage.getItem("authToken")
 
 export const ApplyStatusMap = {
     1: '申请中',
@@ -105,6 +103,7 @@ export interface ServiceMetadata {
 
 class $service {
     async search(condition: ServiceSearchCondition, page?: number, pageSize?: number) {
+        const token = localStorage.getItem("authToken")
         const header = {
             "did": "xxxx"
         }
@@ -155,28 +154,29 @@ class $service {
         return res
     }
 
-    async myCreateDetailByUid(uid: string) {
-        const res = await indexedCache.getByKey('services', uid)
+    async myCreateDetailByUid(id: string) {
+        const res = await indexedCache.getByKey('services', id)
         return res
     }
 
     async myCreateUpdate(params) {
         return await indexedCache.updateByKey("services", {
-            uid: params.uid,
+            id: params.id,
             ...params
         })
     }
 
-    async myCreateDelete(uid: string) {
-        const res = await indexedCache.deleteByKey('services', uid)
+    async myCreateDelete(id: string) {
+        const res = await indexedCache.deleteByKey('services', id)
         return res
     }
 
-    async myApplyDelete(uid: string) {
-        return await indexedCache.deleteByKey("services_apply", uid)
+    async myApplyDelete(id: string) {
+        return await indexedCache.deleteByKey("services_apply", id)
     }
 
     async online(service: ServiceMetadata) {
+        const token = localStorage.getItem("authToken")
         const header = {
             "did": "xxxx"
         }
@@ -210,6 +210,7 @@ class $service {
      * @param version 
      */
     async detail(did: string, version: number) {
+        const token = localStorage.getItem("authToken")
         const header = {
             "did": "xxxx"
         }
@@ -237,12 +238,45 @@ class $service {
         const r =  await response.json();
         return r.body.service
     }
+    /**
+     * 已上线的服务详情
+     * @param did 
+     * @param version 
+     */
+    async queryById(id: string) {
+        const token = localStorage.getItem("authToken")
+        const header = {
+            "did": "xxxx"
+        }
+        const body = {
+            "header": header,
+            "body": {
+                "id": id,
+            }
+        }
+        const response = await fetch('/api/v1/service/querybyid', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                "authorization": `Bearer ${token}`,
+                'accept': 'application/json'
+            },
+            body: JSON.stringify(body),
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Failed to create post: ${response.status} error: ${await response.text()}`);
+        }
 
+        const r =  await response.json();
+        return r.body.service
+    }
     async myApplyCreate(params: ServiceMetadata) {
         await indexedCache.insert('services_apply', params)
     }
 
     async offline(did: string, version: number) {
+        const token = localStorage.getItem("authToken")
         const header = {
             "did": "xxxx"
         }

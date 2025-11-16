@@ -309,8 +309,8 @@ const submitForm = async (formEl, andOnline) => {
                 }
             }
             params.codeType = codeChk.value
-            if (route.query.uid) {
-                const rr = await $application.myCreateDetailByUid(route.query.uid as string)
+            if (route.query.id) {
+                const rr = await $application.myCreateDetailByUid(route.query.id as string)
                 rr.code = params.code
                 rr.codePackagePath = params.codePackagePath
                 rr.codeType = params.codeType
@@ -334,7 +334,7 @@ const submitForm = async (formEl, andOnline) => {
                     notifyError("❌2次密码输入不一致")
                     return
                 }
-                params.uid = uuidv4()
+                params.id = uuidv4()
                 const identity = await generateIdentity(params.code, params.serviceCodes, params.location, params.hash, params.name, params.description,params.avatar, params.password)
                 params.did = identity.metadata?.did
                 params.version = identity?.metadata?.version

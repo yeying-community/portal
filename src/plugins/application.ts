@@ -1,11 +1,10 @@
 import { indexedCache } from './account'
 import { setLocalStorage, getLocalStorage } from '@/utils/common'
 import { createIdentity } from '@yeying-community/yeying-web3'
-import { userInfo } from '@/plugins/account'
 import $audit from '@/plugins/audit'
 import { getCurrentAccount } from './auth'
 import { notifyError } from '@/utils/message'
-const token = localStorage.getItem("authToken")
+
 
 export interface ApplicationDetail {
     name: string
@@ -76,6 +75,7 @@ export interface ApplicationMetadata {
     updatedAt?: string;
     signature?: string;
     codePackagePath?: string;
+    id?: string
 }
 export interface ApplicationSearchCondition {
     code?: string;
@@ -104,8 +104,8 @@ class $application {
         return res
     }
 
-    async myCreateDelete(uid: string) {
-        const res = await indexedCache.deleteByKey('applications', uid)
+    async myCreateDelete(id: string) {
+        const res = await indexedCache.deleteByKey('applications', id)
         return res
     }
 
@@ -120,8 +120,8 @@ class $application {
      * @param {*} uid 
      * @returns 
      */
-    async myCreateDetailByUid(uid: string) {
-        const res = await indexedCache.getByKey('applications', uid)
+    async myCreateDetailByUid(id: string) {
+        const res = await indexedCache.getByKey('applications', id)
         return res
     }
 
@@ -130,12 +130,13 @@ class $application {
      * @param {*} uid 
      * @returns 
      */
-    async myCreateDeleteByUid(uid: string) {
-        const res = await indexedCache.deleteByKey('applications', uid)
+    async myCreateDeleteByUid(id: string) {
+        const res = await indexedCache.deleteByKey('applications', id)
         return res
     }
 
     async search(condition: ApplicationSearchCondition, page?: number, pageSize?: number) {
+        const token = localStorage.getItem("authToken")
         let params: { page?: number; pageSize?: number; condition?: Record<string, any> } = {}
         params.page = page || 1
         params.pageSize = pageSize || 10
@@ -220,6 +221,7 @@ class $application {
      * @param version 
      */
     async detail(did: string, version: number) {
+        const token = localStorage.getItem("authToken")
         const header = {
             "did": "xxxx"
         }
@@ -248,7 +250,42 @@ class $application {
         return r.body.application
     }
 
+    /**
+     * 已上线的应用详情
+     * @param did 
+     * @param version 
+     */
+    async queryById(id: string) {
+        const token = localStorage.getItem("authToken")
+        const header = {
+            "did": "xxxx"
+        }
+        const body = {
+            "header": header,
+            "body": {
+                "id": id,
+            }
+        }
+        const response = await fetch('/api/v1/application/querybyid', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                "authorization": `Bearer ${token}`,
+                'accept': 'application/json'
+            },
+            body: JSON.stringify(body),
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Failed to create post: ${response.status} error: ${await response.text()}`);
+        }
+
+        const r =  await response.json();
+        return r.body.application
+    }
+
     async offline(did: string, version: number) {
+        const token = localStorage.getItem("authToken")
         const header = {
             "did": "xxxx"
         }
@@ -278,6 +315,7 @@ class $application {
     }
 
     async online(application: ApplicationMetadata) {
+        const token = localStorage.getItem("authToken")
         const header = {
             "did": "xxxx"
         }

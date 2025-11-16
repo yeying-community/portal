@@ -328,7 +328,10 @@ const toList = () => {
 
 const exportIdentity = async () => {
     if (props.pageFrom === 'myCreate') {
-        const detailRst = await $service.myCreateDetailByUid(props.detail?.uid)
+        const detailRst = await $service.myCreateDetailByUid(props.detail?.id)
+        await exportIdentityInfo(detailRst.did, detailRst.name)
+    } else {
+        const detailRst = await $service.queryById(props.detail?.id)
         await exportIdentityInfo(detailRst.did, detailRst.name)
     }
 }
@@ -336,7 +339,7 @@ const toDetail = () => {
     router.push({
         path: '/market/service-detail',
         query: {
-            uid: props.detail?.uid,
+            id: props.detail?.id,
             pageFrom: props.pageFrom
         }
     })
@@ -410,7 +413,7 @@ const handleOnline = () => {
              * 创建上架申请
              * innerVisible.value = true 是上架成功后，打开一个弹窗提示用户上架成功了
              */
-            const detailRst = await $service.myCreateDetailByUid(props.detail?.uid)
+            const detailRst = await $service.myCreateDetailByUid(props.detail?.id)
             // 重复申请检查
             const account = getCurrentAccount()
             if (account === undefined || account === null) {

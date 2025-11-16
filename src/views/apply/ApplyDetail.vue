@@ -180,14 +180,15 @@ const detail = async () => {
         /**
          * 应用中心：我创建的-详情接口
          */
-        const detailRst = await $application.myCreateDetailByUid(route.query.uid)
+        const detailRst = await $application.myCreateDetailByUid(route.query.id)
         detailInfo.value = detailRst || {}
     } else {
         /**
          * 我申请的详情接口
          * 应用市场详情接口
          */
-        //const detailRst = await $application.myApplyDetail(did, version)
+        const detailRst = await $application.queryById(route.query.id)
+        detailInfo.value = detailRst || {}
     }
 }
 

@@ -1,5 +1,3 @@
-const token = localStorage.getItem("authToken")
-
 export interface AuditAuditMetadata {
     uid?: string;
     appOrServiceMetadata?: string;
@@ -119,6 +117,8 @@ export function convertAuditMetadata(auditMyApply: AuditAuditDetail[]) {
 class $audit {
 
     async create(meta: AuditAuditMetadata) {
+        const token = localStorage.getItem("authToken")
+        
         const header = {
             "did": "xxxx"
         }
@@ -147,6 +147,8 @@ class $audit {
     }
 
     async search(condition: AuditAuditSearchCondition) {
+        const token = localStorage.getItem("authToken")
+        console.log(`token=${token}`)
         const header = {
             "did": "xxxx"
         }
@@ -171,10 +173,12 @@ class $audit {
         }
 
         const r =  await response.json();
+        // console.log(`response=${JSON.stringify(r.body.detail)}`)
         return r.body.detail
     }
 
     async passed(metadata: AuditCommentMetadata) {
+        const token = localStorage.getItem("authToken")
         const header = {
             "did": "xxxx"
         }
@@ -203,6 +207,7 @@ class $audit {
     }
 
     async reject(metadata: AuditCommentMetadata) {
+        const token = localStorage.getItem("authToken")
         const header = {
             "did": "xxxx"
         }
@@ -231,6 +236,7 @@ class $audit {
     }
 
     async detail(uid: string) {
+        const token = localStorage.getItem("authToken")
         const header = {
             "did": "xxxx"
         }
@@ -259,6 +265,7 @@ class $audit {
     }
 
     async cancel(uid: string) {
+        const token = localStorage.getItem("authToken")
         const header = {
             "did": "xxxx"
         }

@@ -1,8 +1,7 @@
-const token = localStorage.getItem("authToken")
-
 class $minio {
 
     async getUploadUrl(filename: string) {
+        const token = localStorage.getItem("authToken")
         const header = {
             "did": "xxxx"
         }

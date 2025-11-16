@@ -15,7 +15,7 @@
             <!-- 服务中心-我的创建的详情 -->
             <div v-if="urlQuery.pageFrom === 'myCreate'">
                 <div v-if="isOnline">
-                    <el-button plain>导出身份</el-button>
+                    <el-button plain @click="exportIdentity">导出身份</el-button>
                     <el-button type="danger" plain>下架服务</el-button>
                 </div>
                 <div v-else>
@@ -31,7 +31,7 @@
                         <template #reference> <el-button plain>删除</el-button> </template>
                     </el-popconfirm>
 
-                    <el-button plain>导出身份</el-button>
+                    <el-button plain @click="exportIdentity">导出身份</el-button>
                     <el-button plain>编辑</el-button>
                     <el-button type="danger" plain>上架服务</el-button>
                 </div>
@@ -109,7 +109,7 @@ import { onMounted, ref } from 'vue'
 import BreadcrumbHeader from '@/views/components/BreadcrumbHeader.vue'
 import ApplyStatus from '@/views/components/ApplyStatus.vue'
 import { WarningFilled } from '@element-plus/icons-vue'
-
+import { exportIdentityInfo } from '@/plugins/account'
 import { useRoute } from 'vue-router'
 import $service from '@/plugins/service'
 import { Link } from '@element-plus/icons-vue'
@@ -134,13 +134,35 @@ const mockApplyStatus = 'success'
 
 const detail = async () => {
     if (route.query.pageFrom === 'myCreate') {
-        const detailRst = await $service.myCreateDetailByUid(route.query.uid as string)
+        const detailRst = await $service.myCreateDetailByUid(route.query.id as string)
         detailInfo.value = detailRst || {}
     } else {
-        // const detailRst = await $service.myApplyDetail(did, version)
-        // detailInfo.value = detailRst || {}
+        const detailRst = await $service.queryById(route.query.id as string)
+        detailInfo.value = detailRst || {}
     }
 }
+
+const props = defineProps({
+    detail: Object,
+    selectId: Number,
+    refreshCardList: Function,
+    pageFrom: String
+})
+
+
+/**
+ * 导出身份
+ */
+const exportIdentity = async () => {
+    if (props.pageFrom === 'myCreate') {
+        const detailRst = await $service.myCreateDetailByUid(props.detail?.id)
+        await exportIdentityInfo(detailRst.did, detailRst.name)
+    } else {
+        const detailRst = await $service.queryById(props.detail?.id)
+        await exportIdentityInfo(detailRst.did, detailRst.name)
+    }
+}
+
 /**
  * todo 学虎，删除应用接口
  */
