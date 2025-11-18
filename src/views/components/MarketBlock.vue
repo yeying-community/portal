@@ -81,9 +81,7 @@
                                     </el-popconfirm>
                                 </el-dropdown-item>
 
-                                <el-dropdown-item v-if="mockLineStatus === 'offline'" @click="toEdit"
-                                    >编辑</el-dropdown-item
-                                >
+                                <el-dropdown-item v-if="mockLineStatus === 'offline'" @click="toEdit">编辑</el-dropdown-item>
                                 <el-dropdown-item @click="exportIdentity">导出身份</el-dropdown-item>
                             </el-dropdown-menu>
                         </template>
@@ -305,24 +303,25 @@ const getApplyStatus = async () => {
  * 取消申请
  *
  */
-const cancelApply = () => {}
+const cancelApply = async () => {}
 
 /**
  * 删除
  */
 const toDelete = async () => {
     if (props.pageFrom === 'myCreate') {
-        await $application.myCreateDelete(props.detail?.uid)
+        await $application.myCreateDelete(props.detail?.id)
     } else {
-        await $application.myApplyDelete(props.detail?.uid)
+        await $application.myApplyDelete(props.detail?.id)
     }
     props.refreshCardList()
 }
-const toEdit = () => {
+
+const toEdit = async () => {
     router.push({
         path: '/market/apply-edit',
         query: {
-            uid: props.detail?.uid
+            id: props.detail?.id
         }
     })
 }

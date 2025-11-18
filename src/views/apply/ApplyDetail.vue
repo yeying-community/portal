@@ -10,14 +10,9 @@
                 <BreadcrumbHeader :pageName="detailInfo.name" />
                 <ApplyStatus status="applying" v-if="pageFrom === 'myApply'" />
             </div>
-
-            <!-- 应用中心-我的创建的详情 -->
-            <div v-if="pageFrom === 'myCreate'">
+            <!-- 应用中心-应用市场的详情 -->
+            <div v-if="pageFrom === 'market'">
                 <div v-if="isOnline">
-                    <el-button plain @click="exportIdentity">导出身份</el-button>
-                    <el-button type="danger" plain @click="handleOfflineConfirm">下架应用</el-button>
-                </div>
-                <div v-else>
                     <el-popconfirm
                         confirm-button-text="确定"
                         cancel-button-text="取消"
@@ -28,12 +23,31 @@
                         @confirm="toDelete"
                     >
                         <template #reference>
-                            <el-button plain>删除</el-button>
+                            <el-button type="danger" plain>下架应用</el-button>
+                        </template>
+                    </el-popconfirm>
+                </div>
+            </div>
+
+            <!-- 应用中心-我的创建的详情 -->
+            <div v-if="pageFrom === 'myCreate'">
+                <div>
+                    <el-popconfirm
+                        confirm-button-text="确定"
+                        cancel-button-text="取消"
+                        :icon="WarningFilled"
+                        icon-color="#FB9A0E"
+                        title="您确定要删除该应用吗？"
+                        width="220px"
+                        @confirm="toDelete"
+                    >
+                        <template #reference>
+                            <el-button type="danger" plain>删除</el-button>
                         </template>
                     </el-popconfirm>
                     <el-button plain @click="toEdit">编辑</el-button>
                     <el-button plain @click="exportIdentity">导出身份</el-button>
-                    <el-button type="danger" plain. @click="handleOnline">上架应用</el-button>
+                    <el-button plain. @click="handleOnline">上架应用</el-button>
                 </div>
             </div>
             <!-- 应用中心-我的申请的详情 -->
@@ -135,7 +149,10 @@ import { Link } from '@element-plus/icons-vue'
 import Popover from '@/views/components/Popover.vue'
 import ConfigServiceModal from '@/views/components/ConfigServiceModal.vue'
 import { exportIdentityInfo } from '@/plugins/account'
-
+import { getCurrentAccount } from '@/plugins/auth'
+import { notifyError } from '@/utils/message'
+import $audit, { AuditAuditMetadata } from '@/plugins/audit'
+import { generateUuid, getCurrentUtcString } from '@/utils/common'
 const route = useRoute()
 const router = useRouter()
 const urlQuery = ref({})
@@ -153,7 +170,7 @@ const detailInfo = ref<ApplicationDetail>({
     password: '',
     password2: ''
 })
-const { uid: string = '', pageFrom = '' } = route.query || {}
+const { id = '', pageFrom = '' } = route.query || {}
 const innerVisible = ref(false)
 const modalVisible = ref(false)
 
@@ -182,6 +199,7 @@ const detail = async () => {
          */
         const detailRst = await $application.myCreateDetailByUid(route.query.id)
         detailInfo.value = detailRst || {}
+        isOnline.value = false
     } else {
         /**
          * 我申请的详情接口
@@ -197,23 +215,28 @@ const detail = async () => {
   我创建的tab-详情页-导出身份
  */
 const exportIdentity = async () => {
-    const detailRst = await $application.myCreateDetailByUid(route.query.uid)
-    await exportIdentityInfo(detailRst.did, detailRst.ownerName)
+    if (pageFrom === 'myCreate') {
+        const detailRst = await $application.myCreateDetailByUid(route.query.id)
+        await exportIdentityInfo(detailRst.did, detailRst.ownerName)
+    } else if (pageFrom === 'market') {
+        const detailRst = await $application.queryById(route.query.id)
+        await exportIdentityInfo(detailRst.did, detailRst.ownerName)
+    }
 }
 
 /**
  * 删除接口
  */
-const toDelete = () => {
-    /**
-     *  todo学虎 调用删除接口
-     */
-    if (pageFrom === 'myApply') {
-        // 这里调用我申请的-详情页删除接口
-    } else {
-        // 这里调用我创建的-详情页删除接口
+const toDelete = async () => {
+    if (pageFrom === 'myCreate') {
+        await $application.myCreateDelete(route.query.id)
+    } else if (pageFrom === 'myApply') {
+        await $application.myApplyDelete(route.query.id)
+    } else if (pageFrom === 'market') {
+        console.log(`下架应用`)
+        const app = await $application.queryById(route.query.id)
+        await $application.offline(app.did, app.version)
     }
-
     // 删除成功后跳转到列表页
     toList()
 }
@@ -271,11 +294,46 @@ const handleOnline = () => {
         showClose: false,
         customClass: 'messageBox-wrap'
     })
-        .then(() => {
+        .then(async () => {
             /**
-             * todo 学虎 我创建的-详情页-右上角-上架按钮调用接口
+             * 创建上架申请
+             * innerVisible.value = true 是上架成功后，打开一个弹窗提示用户上架成功了
              */
-            innerVisible.value = true
+            const detailRst = await $application.myCreateDetailByUid(route.query.id)
+            // 重复申请检查
+            const account = getCurrentAccount()
+            if (account === undefined || account === null) {
+                notifyError("❌未查询到当前账户，请登录")
+                return
+            }
+            const applicant = `${account}::${account}`
+            const approver = import.meta.env.VITE_APPLICANT
+            let searchList = await $audit.search({name: detailRst.name})
+            searchList = searchList.filter((a) => a.meta.applicant === applicant && a.meta.appOrServiceMetadata.includes(`"operateType":"application"`))
+            if (searchList.length > 0) {
+                ElMessageBox.alert('您已申请，无需重复申请', '提示')
+                .then(() => {
+                })
+                .catch(() => {
+                });
+                return
+            }
+            detailRst.operateType = 'application'
+            const meta: AuditAuditMetadata = {
+                uid: generateUuid(),
+                appOrServiceMetadata: JSON.stringify(detailRst),
+                auditType: 'application',
+                applicant: applicant, // 申请人身份，did::name
+                approver: approver,
+                reason: '上架申请',
+                createdAt: getCurrentUtcString(),
+                updatedAt: getCurrentUtcString(),
+                signature: 'mock'
+            }
+            const status = await $audit.create(meta)
+            if (status.code === "OK") {
+                innerVisible.value = true
+            }
         })
         .catch(() => {})
 }

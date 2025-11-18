@@ -111,7 +111,7 @@ class $application {
 
     async myCreateUpdate(params) {
         return await indexedCache.updateByKey("applications", {
-            uid: params.uid,
+            id: params.id,
             ...params
         })
     }
@@ -343,13 +343,13 @@ class $application {
         return r.body.application
     }
 
-    async unbind(uid: string) {
+    async unbind(id: string) {
         const account = getCurrentAccount()
         if (account === undefined || account === null) {
             notifyError("❌未查询到当前账户，请登录")
             return
         }
-        const res = await indexedCache.getByKey('applications_apply', uid)
+        const res = await indexedCache.getByKey('applications_apply', id)
         // 删除审批记录
         const applicant = `${account}::${account}`
         const detail = await $audit.search({applicant: applicant})
@@ -358,7 +358,7 @@ class $application {
         for (const item of auditUids) {
             await $audit.cancel(item)
         }
-        await indexedCache.deleteByKey('applications_apply', uid)
+        await indexedCache.deleteByKey('applications_apply', id)
     }
     
     async audit(did, version, passed, signature, auditor, comment) {

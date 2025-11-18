@@ -241,7 +241,6 @@ const detailInfo = ref<ApplicationDetail>({
 
 const codeUrl = ref(detailInfo.value.codePackagePath)
 const innerVisible = ref(false)
-const userMeta = ref({})
 const handleClick = (e) => {
     e.preventDefault()
 }
@@ -256,9 +255,10 @@ const rules = reactive({
 })
 
 const getDetailInfo = async () => {
-    if (route.query.uid) {
+    console.log(`route.query.id==${route.query.id}`)
+    if (route.query.id) {
         isEdit.value = true
-        const res = await $application.myCreateDetailByUid(route.query.uid as string)
+        const res = await $application.myCreateDetailByUid(route.query.id as string)
         if (res) {
             detailInfo.value = res
             detailInfo.value.code = String(res.code)
@@ -295,7 +295,10 @@ const submitForm = async (formEl, andOnline) => {
     }
     if (!formEl) return
     detailInfo.value.avatar = imageUrl.value
-    detailInfo.value.codePackagePath = codeUrl.value
+    if (codeUrl.value != '') {
+        detailInfo.value.codePackagePath = codeUrl.value
+    }
+    
     await formEl.validate(async (valid: boolean, fields) => {
         if (valid) {
             const params = JSON.parse(JSON.stringify(detailInfo.value))
@@ -310,6 +313,7 @@ const submitForm = async (formEl, andOnline) => {
             }
             params.codeType = codeChk.value
             if (route.query.id) {
+                console.log(`开始更新`)
                 const rr = await $application.myCreateDetailByUid(route.query.id as string)
                 rr.code = params.code
                 rr.codePackagePath = params.codePackagePath
@@ -400,7 +404,6 @@ const changeFile = async (fileType, uploadFile) => {
         codeUrl.value = `${prefixURL}/${uploadFile.name}`
     }
 }
-
 onMounted(() => {
     getDetailInfo()
 })
