@@ -92,9 +92,29 @@
                                         placeholder="请输入服务代理地址"
                                     />
                                 </el-form-item>
-                                <el-form-item label="服务地址" prop="codePackagePath">
+                                <el-form-item label="代码包" prop="codePackagePath" style="margin-bottom: 0">
+                                    <el-radio-group v-model="codeChk">
+                                        <el-radio value="1" size="large">下载链接</el-radio>
+                                        <el-radio value="2" size="large">上传文件</el-radio>
+                                    </el-radio-group>
+                                </el-form-item>
+
+                                <div v-if="codeChk == '2'" class="wrap-cols">
+                                    <Uploader @change="changeFileCode" v-model="codeList" accept=".zip,.rar,.tar.gz">
+                                        <el-button :icon="Upload">上传文件</el-button>
+                                    </Uploader>
+                                    <div class="upload-text">支持文件类型：‌‌.zip ‌.rar .tar.gz 限制文件数量：1</div>
+                                </div>
+                                <div v-else class="wrap-cols" style="margin-bottom: 18px">
                                     <el-input
                                         v-model="detailInfo.codePackagePath"
+                                        class="input-style"
+                                        placeholder="请输入下载链接"
+                                    />
+                                </div>
+                                <el-form-item label="服务地址" prop="grpc">
+                                    <el-input
+                                        v-model="detailInfo.grpc"
                                         class="input-style"
                                         placeholder="请输入输入服务IP：端口（如：192.168.1.1:8080）"
                                     />
@@ -309,7 +329,10 @@ const submitForm = async (formEl, andOnline) => {
     }
     if (!formEl) return
     detailInfo.value.avatar = imageUrl.value
-    detailInfo.value.codePackagePath = codeUrl.value
+    if (detailInfo.value.codePackagePath === undefined) {
+        detailInfo.value.codePackagePath = codeUrl.value
+    }
+    
     await formEl.validate(async (valid: boolean, fields) => {
         if (valid) {
             const params = JSON.parse(JSON.stringify(detailInfo.value))
@@ -324,7 +347,7 @@ const submitForm = async (formEl, andOnline) => {
             }
             params.codeType = codeChk.value
             if (route.query.uid) {
-                const rr = await $service.myCreateDetailByUid(route.query.uid as string)
+                const rr = await $service.myCreateDetailByUid(route.query.id as string)
                 rr.code = params.code
                 rr.codePackagePath = params.codePackagePath
                 rr.codeType = params.codeType
@@ -348,7 +371,7 @@ const submitForm = async (formEl, andOnline) => {
                     notifyError("2次密码输入不一致")
                     return
                 }
-                params.uid = uuidv4()
+                params.id = uuidv4()
                 const identity = await generateIdentity(params.code, params.apiCodes, params.location, params.hash, params.name, params.description,params.avatar, params.password)
                 params.did = identity.metadata?.did
                 params.version = identity?.metadata?.version
@@ -379,14 +402,12 @@ const changeFileAvatar = (uploadFile) => {
 const changeFileCode = (uploadFile) => {
     changeFile(2, uploadFile)
 }
-const handleAvatarUpdate = (newFiles) => {
-    avatarList.value = newFiles
-}
+
 const changeFile = async (fileType, uploadFile) => {
     // ✅ 关键：获取原始文件对象 raw
     const file = uploadFile.raw || uploadFile
     if (!(file instanceof Blob)) {
-        notifyError('❌上传文件格式无效')
+        notifyError('上传文件格式无效')
         return
     }
     const presignedUrl = await $minio.getUploadUrl(uploadFile.name)
@@ -404,11 +425,12 @@ const changeFile = async (fileType, uploadFile) => {
         return
     }
     if (fileType === 1) {
-        imageUrl.value = uploadFile.name
+        imageUrl.value = `${prefixURL}/${uploadFile.name}`
     } else if (fileType === 2) {
-        codeUrl.value = uploadFile.name
+        codeUrl.value = `${prefixURL}/${uploadFile.name}`
     }
 }
+
 
 onMounted(() => {
     getDetailInfo()

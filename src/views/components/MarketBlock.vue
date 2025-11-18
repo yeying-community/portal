@@ -81,9 +81,7 @@
                                     </el-popconfirm>
                                 </el-dropdown-item>
 
-                                <el-dropdown-item v-if="mockLineStatus === 'offline'" @click="toEdit"
-                                    >编辑</el-dropdown-item
-                                >
+                                <el-dropdown-item v-if="mockLineStatus === 'offline'" @click="toEdit">编辑</el-dropdown-item>
                                 <el-dropdown-item @click="exportIdentity">导出身份</el-dropdown-item>
                             </el-dropdown-menu>
                         </template>
@@ -201,7 +199,7 @@ import { useRouter } from 'vue-router'
 import $audit, { AuditAuditMetadata } from '@/plugins/audit'
 import { SuccessFilled } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
-import $account, { exportIdentityInfo, userInfo } from '@/plugins/account'
+import { exportIdentityInfo } from '@/plugins/account'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { h } from 'vue'
 import Popover from '@/views/components/Popover.vue'
@@ -305,42 +303,46 @@ const getApplyStatus = async () => {
  * 取消申请
  *
  */
-const cancelApply = () => {}
+const cancelApply = async () => {}
 
 /**
  * 删除
  */
 const toDelete = async () => {
     if (props.pageFrom === 'myCreate') {
-        await $application.myCreateDelete(props.detail?.uid)
+        await $application.myCreateDelete(props.detail?.id)
     } else {
-        await $application.myApplyDelete(props.detail?.uid)
+        await $application.myApplyDelete(props.detail?.id)
     }
     props.refreshCardList()
 }
-const toEdit = () => {
+
+const toEdit = async () => {
     router.push({
         path: '/market/apply-edit',
         query: {
-            uid: props.detail?.uid
+            id: props.detail?.id
         }
     })
 }
 /**
- * 我创建的-导出身份
- * todo 学虎
+ * 导出身份
  */
 const exportIdentity = async () => {
     if (props.pageFrom === 'myCreate') {
-        const detailRst = await $application.myCreateDetailByUid(props.detail?.uid)
+        const detailRst = await $application.myCreateDetailByUid(props.detail?.id)
+        await exportIdentityInfo(detailRst.did, detailRst.name)
+    } else {
+        const detailRst = await $application.queryById(props.detail?.id)
         await exportIdentityInfo(detailRst.did, detailRst.name)
     }
 }
+
 const toDetail = () => {
     router.push({
         path: '/market/apply-detail',
         query: {
-            uid: props.detail?.uid,
+            id: props.detail?.id,
             pageFrom: props.pageFrom
         }
     })
@@ -438,7 +440,7 @@ const handleOnline = () => {
              * 创建上架申请
              * innerVisible.value = true 是上架成功后，打开一个弹窗提示用户上架成功了
              */
-            const detailRst = await $application.myCreateDetailByUid(props.detail.uid)
+            const detailRst = await $application.myCreateDetailByUid(props.detail.id)
             // 重复申请检查
             const account = getCurrentAccount()
             if (account === undefined || account === null) {
