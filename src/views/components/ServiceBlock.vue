@@ -11,7 +11,10 @@
                     <span class="badge-text">{{ StatusInfo[detail.status]?.text }}</span>
                 </div>
                 <div class="title">
-                    <span v-if="detail.owner && pageFrom !== 'myCreate'"> 所有者: {{ detail.owner }} </span>
+                    <div class="ownerWrap" v-if="detail.owner && pageFrom !== 'myCreate'">
+                        <div class="ownerTitle">所有者:</div>
+                        <div class="ownerContent">{{ detail.owner }}</div>
+                    </div>
                     <span v-else>
                         <el-tag type="primary" size="small">官方</el-tag>
                     </span>
@@ -20,9 +23,7 @@
                         {{ dayjs(detail.createdAt).format('YYYY-MM-DD') }}</span
                     >
                 </div>
-                <div class="desc">所有者名称：
-                    {{ detail.ownerName }}
-                </div>
+
                 <div class="desc">
                     {{ detail.description }}
                 </div>
@@ -206,6 +207,7 @@
     </ResultChooseModal>
 </template>
 <script lang="ts" setup>
+import { SuccessFilled } from '@element-plus/icons-vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import dayjs from 'dayjs'
@@ -261,7 +263,6 @@ const dialogVisible = ref(false)
 const modalVisible = ref(false)
 const operateType = ref('service')
 
-
 const router = useRouter()
 const props = defineProps({
     detail: Object,
@@ -273,7 +274,7 @@ const props = defineProps({
 const isOwner = () => {
     const account = getCurrentAccount()
     if (account === undefined || account === null) {
-        notifyError("❌未查询到当前账户，请登录")
+        notifyError('❌未查询到当前账户，请登录')
         return
     }
     return account === props.detail?.owner
@@ -353,12 +354,14 @@ const handleOffline = async () => {
         props.refreshCardList()
         const account = getCurrentAccount()
         if (account === undefined || account === null) {
-            notifyError("❌未查询到当前账户，请登录")
+            notifyError('❌未查询到当前账户，请登录')
             return
         }
         const applicant = `${account}::${account}`
-        const detail = await $audit.search({applicant: applicant})
-        const uids = detail.filter((d) => d.meta.appOrServiceMetadata.includes(`"name":"${props.detail?.name}"`)).map((s) => s.meta.uid)
+        const detail = await $audit.search({ applicant: applicant })
+        const uids = detail
+            .filter((d) => d.meta.appOrServiceMetadata.includes(`"name":"${props.detail?.name}"`))
+            .map((s) => s.meta.uid)
         // 删除申请
         for (const item of uids) {
             await $audit.cancel(item)
@@ -414,19 +417,19 @@ const handleOnline = () => {
             // 重复申请检查
             const account = getCurrentAccount()
             if (account === undefined || account === null) {
-                notifyError("❌未查询到当前账户，请登录")
+                notifyError('❌未查询到当前账户，请登录')
                 return
             }
             const applicant = `${account}::${account}`
             const approver = import.meta.env.VITE_APPLICANT
-            let searchList = await $audit.search({name: detailRst.name})
-            searchList = searchList.filter((a) => a.meta.applicant === applicant && a.meta.appOrServiceMetadata.includes(`"operateType":"service"`))
+            let searchList = await $audit.search({ name: detailRst.name })
+            searchList = searchList.filter(
+                (a) => a.meta.applicant === applicant && a.meta.appOrServiceMetadata.includes(`"operateType":"service"`)
+            )
             if (searchList.length > 0) {
                 ElMessageBox.alert('您已申请，无需重复申请', '提示')
-                .then(() => {
-                })
-                .catch(() => {
-                });
+                    .then(() => {})
+                    .catch(() => {})
                 return
             }
             detailRst.operateType = 'service'
@@ -442,7 +445,7 @@ const handleOnline = () => {
                 signature: 'mock'
             }
             const status = await $audit.create(meta)
-            if (status.code === "OK") {
+            if (status.code === 'OK') {
                 innerVisible.value = true
             }
         })
@@ -486,9 +489,21 @@ const afterSubmit = () => {
                 font-size: 14px;
                 font-weight: 400;
                 gap: 4px;
+
                 .el-tag {
                     margin-top: -4px;
                 }
+            }
+            .ownerWrap {
+                display: flex;
+            }
+            .ownerTitle {
+                white-space: nowrap;
+            }
+            .ownerContent {
+                max-width: 120px;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
             .desc {
                 color: rgba(0, 0, 0, 0.45);

@@ -19,10 +19,20 @@
                                     <el-input v-model="detailInfo.name" class="input-style" placeholder="请输入" />
                                 </el-form-item>
                                 <el-form-item label="身份密码" prop="password">
-                                    <el-input v-model="detailInfo.password" type="password" class="input-style" placeholder="请输入" />
+                                    <el-input
+                                        v-model="detailInfo.password"
+                                        type="password"
+                                        class="input-style"
+                                        placeholder="请输入"
+                                    />
                                 </el-form-item>
                                 <el-form-item label="身份密码确认" prop="password2">
-                                    <el-input v-model="detailInfo.password2" type="password" class="input-style" placeholder="请输入" />
+                                    <el-input
+                                        v-model="detailInfo.password2"
+                                        type="password"
+                                        class="input-style"
+                                        placeholder="请输入"
+                                    />
                                 </el-form-item>
                                 <el-form-item label="服务描述" prop="description">
                                     <el-input
@@ -46,11 +56,7 @@
                                     <div class="upload-text">支持图片类型：png, jpg,gif,图标大小30*30</div>
                                 </div>
                                 <div v-else>
-                                    <img
-                                        class="mr-1 w-7 h-7"
-                                        :src="imageUrl"
-                                        style="border-radius: 8px"
-                                    />
+                                    <img class="mr-1 w-7 h-7" :src="imageUrl" style="border-radius: 8px" />
                                 </div>
                             </div>
                         </div>
@@ -165,11 +171,11 @@ import { h } from 'vue'
 import { SuccessFilled } from '@element-plus/icons-vue'
 import ResultChooseModal from '@/views/components/ResultChooseModal.vue'
 import { generateIdentity, userInfo } from '@/plugins/account'
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from 'uuid'
 import { notifyError } from '@/utils/message'
-import $service, {codeMap, serviceCodeMap, ServiceMetadata } from '@/plugins/service'
+import $service, { codeMap, serviceCodeMap, ServiceMetadata } from '@/plugins/service'
 import { getCurrentUtcString } from '@/utils/common'
-import $minio  from "@/plugins/minio";
+import $minio from '@/plugins/minio'
 import { getCurrentAccount } from '@/plugins/auth'
 
 const defaultAvatar = import.meta.env.VITE_MINIO_AVATAR
@@ -178,7 +184,7 @@ const endpoint = import.meta.env.VITE_MINIO_ENDPOINT
 const port = import.meta.env.VITE_MINIO_PORT
 const bucket = import.meta.env.VITE_MINIO_BUCKET
 const prefixURL = `${protocol}${endpoint}:${port}/${bucket}`
-const imageUrl = ref(`${prefixURL}/${defaultAvatar}`);
+const imageUrl = ref(`${prefixURL}/${defaultAvatar}`)
 
 const route = useRoute()
 const router = useRouter()
@@ -267,7 +273,7 @@ const rules = reactive({
     avatar: [{ required: true, message: '请选择', trigger: 'blur' }],
     code: [{ required: true, message: '请选择', trigger: 'blur' }],
     apiCodes: [{ required: true, message: '请选择', trigger: 'blur' }],
-    codePackagePath: [{ required: true, message: '请上传代码包', trigger: 'blur' }]
+    codePackagePath: [{ required: true, message: '请输入', trigger: 'blur' }]
 })
 const getDetailInfo = async () => {
     if (route.query.uid) {
@@ -304,12 +310,12 @@ const getDetailInfo = async () => {
 const submitForm = async (formEl, andOnline) => {
     const account = getCurrentAccount()
     if (account === undefined || account === null) {
-        notifyError("❌未查询到当前账户，请登录")
+        notifyError('❌未查询到当前账户，请登录')
         return
     }
     if (!formEl) return
     detailInfo.value.avatar = imageUrl.value
-    detailInfo.value.codePackagePath = codeUrl.value
+    // detailInfo.value.codePackagePath = codeUrl.value
     await formEl.validate(async (valid: boolean, fields) => {
         if (valid) {
             const params = JSON.parse(JSON.stringify(detailInfo.value))
@@ -345,11 +351,20 @@ const submitForm = async (formEl, andOnline) => {
                 }
             } else {
                 if (params.password !== params.password2) {
-                    notifyError("2次密码输入不一致")
+                    notifyError('2次密码输入不一致')
                     return
                 }
                 params.uid = uuidv4()
-                const identity = await generateIdentity(params.code, params.apiCodes, params.location, params.hash, params.name, params.description,params.avatar, params.password)
+                const identity = await generateIdentity(
+                    params.code,
+                    params.apiCodes,
+                    params.location,
+                    params.hash,
+                    params.name,
+                    params.description,
+                    params.avatar,
+                    params.password
+                )
                 params.did = identity.metadata?.did
                 params.version = identity?.metadata?.version
                 params.owner = account
@@ -392,12 +407,12 @@ const changeFile = async (fileType, uploadFile) => {
     const presignedUrl = await $minio.getUploadUrl(uploadFile.name)
     // 2. 使用预签名 URL 上传文件
     const uploadRes = await fetch(presignedUrl, {
-      method: 'PUT',
-      body: file,
-      headers: {
-        'Content-Type': 'application/octet-stream',
-      },
-    });
+        method: 'PUT',
+        body: file,
+        headers: {
+            'Content-Type': 'application/octet-stream'
+        }
+    })
     if (uploadRes.status !== 200) {
         console.error(`文件上传失败=${uploadRes.status} - ${uploadRes.json}`)
         notifyError(`文件上传失败=${uploadRes.status} - ${uploadRes.json}`)
