@@ -347,7 +347,7 @@ const submitForm = async (formEl, andOnline) => {
             }
             params.codeType = codeChk.value
             if (route.query.uid) {
-                const rr = await $service.myCreateDetailByUid(route.query.id as string)
+                const rr = await $service.myCreateDetailByUid(route.query.uid as string)
                 rr.code = params.code
                 rr.codePackagePath = params.codePackagePath
                 rr.codeType = params.codeType

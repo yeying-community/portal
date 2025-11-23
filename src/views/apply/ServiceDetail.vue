@@ -134,10 +134,10 @@ const mockApplyStatus = 'success'
 
 const detail = async () => {
     if (route.query.pageFrom === 'myCreate') {
-        const detailRst = await $service.myCreateDetailByUid(route.query.id as string)
+        const detailRst = await $service.myCreateDetailByUid(route.query.uid as string)
         detailInfo.value = detailRst || {}
     } else {
-        const detailRst = await $service.queryById(route.query.id as string)
+        const detailRst = await $service.queryByUid(route.query.uid as string)
         detailInfo.value = detailRst || {}
     }
 }

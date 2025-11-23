@@ -10,6 +10,7 @@
     "format": "prettier --write \"src/**/*.js\""
   },
   "dependencies": {
+    "@element-plus/icons-vue": "^2.3.2",
     "@headlessui/vue": "^1.7.23",
     "@heroicons/vue": "^2.2.0",
     "@yeying-community/yeying-client-ts": "^1.0.23",

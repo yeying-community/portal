@@ -11,7 +11,10 @@
                     <span class="badge-text">{{ StatusInfo[detail.status]?.text }}</span>
                 </div>
                 <div class="title">
-                    <span v-if="detail.owner && pageFrom !== 'myCreate'"> 所有者: {{ detail.owner }} </span>
+                     <div class="ownerWrap" v-if="detail.owner && pageFrom !== 'myCreate'">
+                        <div class="ownerTitle">所有者:</div>
+                        <div class="ownerContent">{{ detail.owner }}</div>
+                    </div>
                     <span v-else>
                         <el-tag type="primary" size="small">官方</el-tag>
                     </span>
@@ -206,6 +209,7 @@
     </ResultChooseModal>
 </template>
 <script lang="ts" setup>
+import { SuccessFilled } from '@element-plus/icons-vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import dayjs from 'dayjs'
@@ -339,7 +343,7 @@ const toDetail = () => {
     router.push({
         path: '/market/service-detail',
         query: {
-            id: props.detail?.id,
+            uid: props.detail?.uid,
             pageFrom: props.pageFrom
         }
     })
@@ -492,6 +496,17 @@ const afterSubmit = () => {
                 .el-tag {
                     margin-top: -4px;
                 }
+            }
+            .ownerWrap {
+                display: flex;
+            }
+            .ownerTitle {
+                white-space: nowrap;
+            }
+            .ownerContent {
+                max-width: 120px;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
             .desc {
                 color: rgba(0, 0, 0, 0.45);
