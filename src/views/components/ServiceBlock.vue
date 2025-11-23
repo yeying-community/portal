@@ -11,7 +11,10 @@
                     <span class="badge-text">{{ StatusInfo[detail.status]?.text }}</span>
                 </div>
                 <div class="title">
-                    <span v-if="detail.owner && pageFrom !== 'myCreate'"> 所有者: {{ detail.owner }} </span>
+                     <div class="ownerWrap" v-if="detail.owner && pageFrom !== 'myCreate'">
+                        <div class="ownerTitle">所有者:</div>
+                        <div class="ownerContent">{{ detail.owner }}</div>
+                    </div>
                     <span v-else>
                         <el-tag type="primary" size="small">官方</el-tag>
                     </span>
@@ -20,8 +23,11 @@
                         {{ dayjs(detail.createdAt).format('YYYY-MM-DD') }}</span
                     >
                 </div>
-                <div class="desc">所有者名称：
-                    {{ detail.ownerName }}
+                <div class="desc">
+                    <div class="ownerWrap" v-if="detail.ownerName && pageFrom !== 'myCreate'">
+                        <div>所有者名称:</div>
+                        <div class="ownerContent">{{ detail.ownerName }}</div>
+                    </div>
                 </div>
                 <div class="desc">
                     {{ detail.description }}
@@ -206,6 +212,7 @@
     </ResultChooseModal>
 </template>
 <script lang="ts" setup>
+import { SuccessFilled } from '@element-plus/icons-vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import dayjs from 'dayjs'
@@ -328,10 +335,10 @@ const toList = () => {
 
 const exportIdentity = async () => {
     if (props.pageFrom === 'myCreate') {
-        const detailRst = await $service.myCreateDetailByUid(props.detail?.id)
+        const detailRst = await $service.myCreateDetailByUid(props.detail?.uid)
         await exportIdentityInfo(detailRst.did, detailRst.name)
     } else {
-        const detailRst = await $service.queryById(props.detail?.id)
+        const detailRst = await $service.queryByUid(props.detail?.uid)
         await exportIdentityInfo(detailRst.did, detailRst.name)
     }
 }
@@ -339,7 +346,7 @@ const toDetail = () => {
     router.push({
         path: '/market/service-detail',
         query: {
-            id: props.detail?.id,
+            uid: props.detail?.uid,
             pageFrom: props.pageFrom
         }
     })
@@ -413,7 +420,7 @@ const handleOnline = () => {
              * 创建上架申请
              * innerVisible.value = true 是上架成功后，打开一个弹窗提示用户上架成功了
              */
-            const detailRst = await $service.myCreateDetailByUid(props.detail?.id)
+            const detailRst = await $service.myCreateDetailByUid(props.detail?.uid)
             // 重复申请检查
             const account = getCurrentAccount()
             if (account === undefined || account === null) {
@@ -492,6 +499,17 @@ const afterSubmit = () => {
                 .el-tag {
                     margin-top: -4px;
                 }
+            }
+            .ownerWrap {
+                display: flex;
+            }
+            .ownerTitle {
+                white-space: nowrap;
+            }
+            .ownerContent {
+                max-width: 120px;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
             .desc {
                 color: rgba(0, 0, 0, 0.45);

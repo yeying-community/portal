@@ -197,7 +197,7 @@ const detail = async () => {
         /**
          * 应用中心：我创建的-详情接口
          */
-        const detailRst = await $application.myCreateDetailByUid(route.query.id)
+        const detailRst = await $application.myCreateDetailByUid(route.query.uid)
         detailInfo.value = detailRst || {}
         isOnline.value = false
     } else {
@@ -205,7 +205,7 @@ const detail = async () => {
          * 我申请的详情接口
          * 应用市场详情接口
          */
-        const detailRst = await $application.queryById(route.query.id)
+        const detailRst = await $application.queryByUid(route.query.uid)
         detailInfo.value = detailRst || {}
     }
 }
@@ -216,10 +216,10 @@ const detail = async () => {
  */
 const exportIdentity = async () => {
     if (pageFrom === 'myCreate') {
-        const detailRst = await $application.myCreateDetailByUid(route.query.id)
+        const detailRst = await $application.myCreateDetailByUid(route.query.uid)
         await exportIdentityInfo(detailRst.did, detailRst.ownerName)
     } else if (pageFrom === 'market') {
-        const detailRst = await $application.queryById(route.query.id)
+        const detailRst = await $application.queryByUid(route.query.uid)
         await exportIdentityInfo(detailRst.did, detailRst.ownerName)
     }
 }
@@ -229,12 +229,12 @@ const exportIdentity = async () => {
  */
 const toDelete = async () => {
     if (pageFrom === 'myCreate') {
-        await $application.myCreateDelete(route.query.id)
+        await $application.myCreateDelete(route.query.uid)
     } else if (pageFrom === 'myApply') {
-        await $application.myApplyDelete(route.query.id)
+        await $application.myApplyDelete(route.query.uid)
     } else if (pageFrom === 'market') {
         console.log(`下架应用`)
-        const app = await $application.queryById(route.query.id)
+        const app = await $application.queryByUid(route.query.uid)
         await $application.offline(app.did, app.version)
     }
     // 删除成功后跳转到列表页
@@ -299,7 +299,7 @@ const handleOnline = () => {
              * 创建上架申请
              * innerVisible.value = true 是上架成功后，打开一个弹窗提示用户上架成功了
              */
-            const detailRst = await $application.myCreateDetailByUid(route.query.id)
+            const detailRst = await $application.myCreateDetailByUid(route.query.uid)
             // 重复申请检查
             const account = getCurrentAccount()
             if (account === undefined || account === null) {

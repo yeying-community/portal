@@ -154,25 +154,25 @@ class $service {
         return res
     }
 
-    async myCreateDetailByUid(id: string) {
-        const res = await indexedCache.getByKey('services', id)
+    async myCreateDetailByUid(uid: string) {
+        const res = await indexedCache.getByKey('services', uid)
         return res
     }
 
     async myCreateUpdate(params) {
         return await indexedCache.updateByKey("services", {
-            id: params.id,
+            uid: params.uid,
             ...params
         })
     }
 
-    async myCreateDelete(id: string) {
-        const res = await indexedCache.deleteByKey('services', id)
+    async myCreateDelete(uid: string) {
+        const res = await indexedCache.deleteByKey('services', uid)
         return res
     }
 
-    async myApplyDelete(id: string) {
-        return await indexedCache.deleteByKey("services_apply", id)
+    async myApplyDelete(uid: string) {
+        return await indexedCache.deleteByKey("services_apply", uid)
     }
 
     async online(service: ServiceMetadata) {
@@ -240,10 +240,9 @@ class $service {
     }
     /**
      * 已上线的服务详情
-     * @param did 
-     * @param version 
+     * @param uid 
      */
-    async queryById(id: string) {
+    async queryByUid(uid: string) {
         const token = localStorage.getItem("authToken")
         const header = {
             "did": "xxxx"
@@ -251,10 +250,10 @@ class $service {
         const body = {
             "header": header,
             "body": {
-                "id": id,
+                "uid": uid,
             }
         }
-        const response = await fetch('/api/v1/service/querybyid', {
+        const response = await fetch('/api/v1/service/querybyuid', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
