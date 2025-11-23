@@ -371,7 +371,7 @@ const submitForm = async (formEl, andOnline) => {
                     notifyError("2次密码输入不一致")
                     return
                 }
-                params.id = uuidv4()
+                params.uid = uuidv4()
                 const identity = await generateIdentity(params.code, params.apiCodes, params.location, params.hash, params.name, params.description,params.avatar, params.password)
                 params.did = identity.metadata?.did
                 params.version = identity?.metadata?.version

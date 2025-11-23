@@ -23,8 +23,11 @@
                         {{ dayjs(detail.createdAt).format('YYYY-MM-DD') }}</span
                     >
                 </div>
-                <div class="desc">所有者名称：
-                    {{ detail.ownerName }}
+                <div class="desc">
+                    <div class="ownerWrap" v-if="detail.ownerName && pageFrom !== 'myCreate'">
+                        <div>所有者名称：</div>
+                        <div class="ownerContent">{{ detail.ownerName }}</div>
+                    </div>
                 </div>
                 <div class="desc">
                     {{ detail.description }}
@@ -324,7 +327,7 @@ const toEdit = async () => {
     router.push({
         path: '/market/apply-edit',
         query: {
-            id: props.detail?.id
+            uid: props.detail?.uid
         }
     })
 }
@@ -345,7 +348,7 @@ const toDetail = () => {
     router.push({
         path: '/market/apply-detail',
         query: {
-            id: props.detail?.uid,
+            uid: props.detail?.uid,
             pageFrom: props.pageFrom
         }
     })

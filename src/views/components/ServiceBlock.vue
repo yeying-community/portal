@@ -23,8 +23,11 @@
                         {{ dayjs(detail.createdAt).format('YYYY-MM-DD') }}</span
                     >
                 </div>
-                <div class="desc">所有者名称：
-                    {{ detail.ownerName }}
+                <div class="desc">
+                    <div class="ownerWrap" v-if="detail.ownerName && pageFrom !== 'myCreate'">
+                        <div>所有者名称:</div>
+                        <div class="ownerContent">{{ detail.ownerName }}</div>
+                    </div>
                 </div>
                 <div class="desc">
                     {{ detail.description }}
@@ -417,7 +420,7 @@ const handleOnline = () => {
              * 创建上架申请
              * innerVisible.value = true 是上架成功后，打开一个弹窗提示用户上架成功了
              */
-            const detailRst = await $service.myCreateDetailByUid(props.detail?.id)
+            const detailRst = await $service.myCreateDetailByUid(props.detail?.uid)
             // 重复申请检查
             const account = getCurrentAccount()
             if (account === undefined || account === null) {
