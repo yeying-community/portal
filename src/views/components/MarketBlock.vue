@@ -336,10 +336,10 @@ const toEdit = async () => {
  */
 const exportIdentity = async () => {
     if (props.pageFrom === 'myCreate') {
-        const detailRst = await $application.myCreateDetailByUid(props.detail?.id)
+        const detailRst = await $application.myCreateDetailByUid(props.detail?.uid)
         await exportIdentityInfo(detailRst.did, detailRst.name)
     } else {
-        const detailRst = await $application.queryById(props.detail?.id)
+        const detailRst = await $application.queryByUid(props.detail?.uid)
         await exportIdentityInfo(detailRst.did, detailRst.name)
     }
 }

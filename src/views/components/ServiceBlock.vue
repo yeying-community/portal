@@ -335,10 +335,10 @@ const toList = () => {
 
 const exportIdentity = async () => {
     if (props.pageFrom === 'myCreate') {
-        const detailRst = await $service.myCreateDetailByUid(props.detail?.id)
+        const detailRst = await $service.myCreateDetailByUid(props.detail?.uid)
         await exportIdentityInfo(detailRst.did, detailRst.name)
     } else {
-        const detailRst = await $service.queryById(props.detail?.id)
+        const detailRst = await $service.queryByUid(props.detail?.uid)
         await exportIdentityInfo(detailRst.did, detailRst.name)
     }
 }
