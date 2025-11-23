@@ -11,7 +11,10 @@
                     <span class="badge-text">{{ StatusInfo[detail.status]?.text }}</span>
                 </div>
                 <div class="title">
-                    <span v-if="detail.owner && pageFrom !== 'myCreate'"> 所有者: {{ detail.owner }} </span>
+                     <div class="ownerWrap" v-if="detail.owner && pageFrom !== 'myCreate'">
+                        <div>所有者:</div>
+                        <div class="ownerContent">{{ detail.owner }}</div>
+                    </div>
                     <span v-else>
                         <el-tag type="primary" size="small">官方</el-tag>
                     </span>
@@ -20,8 +23,11 @@
                         {{ dayjs(detail.createdAt).format('YYYY-MM-DD') }}</span
                     >
                 </div>
-                <div class="desc">所有者名称：
-                    {{ detail.ownerName }}
+                <div class="desc">
+                    <div class="ownerWrap" v-if="detail.ownerName && pageFrom !== 'myCreate'">
+                        <div>所有者名称：</div>
+                        <div class="ownerContent">{{ detail.ownerName }}</div>
+                    </div>
                 </div>
                 <div class="desc">
                     {{ detail.description }}
@@ -321,7 +327,7 @@ const toEdit = async () => {
     router.push({
         path: '/market/apply-edit',
         query: {
-            id: props.detail?.id
+            uid: props.detail?.uid
         }
     })
 }
@@ -330,10 +336,10 @@ const toEdit = async () => {
  */
 const exportIdentity = async () => {
     if (props.pageFrom === 'myCreate') {
-        const detailRst = await $application.myCreateDetailByUid(props.detail?.id)
+        const detailRst = await $application.myCreateDetailByUid(props.detail?.uid)
         await exportIdentityInfo(detailRst.did, detailRst.name)
     } else {
-        const detailRst = await $application.queryById(props.detail?.id)
+        const detailRst = await $application.queryByUid(props.detail?.uid)
         await exportIdentityInfo(detailRst.did, detailRst.name)
     }
 }
@@ -342,7 +348,7 @@ const toDetail = () => {
     router.push({
         path: '/market/apply-detail',
         query: {
-            id: props.detail?.id,
+            uid: props.detail?.uid,
             pageFrom: props.pageFrom
         }
     })
@@ -440,7 +446,7 @@ const handleOnline = () => {
              * 创建上架申请
              * innerVisible.value = true 是上架成功后，打开一个弹窗提示用户上架成功了
              */
-            const detailRst = await $application.myCreateDetailByUid(props.detail.id)
+            const detailRst = await $application.myCreateDetailByUid(props.detail.uid)
             // 重复申请检查
             const account = getCurrentAccount()
             if (account === undefined || account === null) {
@@ -526,6 +532,17 @@ onMounted(() => {
                 .el-tag {
                     margin-top: -4px;
                 }
+            }
+            .ownerWrap {
+                display: flex;
+            }
+            .ownerTitle {
+                white-space: nowrap;
+            }
+            .ownerContent {
+                max-width: 120px;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
             .desc {
                 color: rgba(0, 0, 0, 0.45);

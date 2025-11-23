@@ -104,14 +104,14 @@ class $application {
         return res
     }
 
-    async myCreateDelete(id: string) {
-        const res = await indexedCache.deleteByKey('applications', id)
+    async myCreateDelete(uid: string) {
+        const res = await indexedCache.deleteByKey('applications', uid)
         return res
     }
 
     async myCreateUpdate(params) {
         return await indexedCache.updateByKey("applications", {
-            id: params.id,
+            uid: params.uid,
             ...params
         })
     }
@@ -120,8 +120,8 @@ class $application {
      * @param {*} uid 
      * @returns 
      */
-    async myCreateDetailByUid(id: string) {
-        const res = await indexedCache.getByKey('applications', id)
+    async myCreateDetailByUid(uid: string) {
+        const res = await indexedCache.getByKey('applications', uid)
         return res
     }
 
@@ -130,8 +130,8 @@ class $application {
      * @param {*} uid 
      * @returns 
      */
-    async myCreateDeleteByUid(id: string) {
-        const res = await indexedCache.deleteByKey('applications', id)
+    async myCreateDeleteByUid(uid: string) {
+        const res = await indexedCache.deleteByKey('applications', uid)
         return res
     }
 
@@ -251,11 +251,10 @@ class $application {
     }
 
     /**
-     * 已上线的应用详情
-     * @param did 
-     * @param version 
+     * 根据 uid 查询应用详情
+     * @param uid 
      */
-    async queryById(id: string) {
+    async queryByUid(uid: string) {
         const token = localStorage.getItem("authToken")
         const header = {
             "did": "xxxx"
@@ -263,10 +262,10 @@ class $application {
         const body = {
             "header": header,
             "body": {
-                "id": id,
+                "uid": uid,
             }
         }
-        const response = await fetch('/api/v1/application/querybyid', {
+        const response = await fetch('/api/v1/application/querybyuid', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -343,13 +342,13 @@ class $application {
         return r.body.application
     }
 
-    async unbind(id: string) {
+    async unbind(uid: string) {
         const account = getCurrentAccount()
         if (account === undefined || account === null) {
             notifyError("❌未查询到当前账户，请登录")
             return
         }
-        const res = await indexedCache.getByKey('applications_apply', id)
+        const res = await indexedCache.getByKey('applications_apply', uid)
         // 删除审批记录
         const applicant = `${account}::${account}`
         const detail = await $audit.search({applicant: applicant})
@@ -358,7 +357,7 @@ class $application {
         for (const item of auditUids) {
             await $audit.cancel(item)
         }
-        await indexedCache.deleteByKey('applications_apply', id)
+        await indexedCache.deleteByKey('applications_apply', uid)
     }
     
     async audit(did, version, passed, signature, auditor, comment) {

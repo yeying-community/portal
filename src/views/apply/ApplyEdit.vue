@@ -255,10 +255,10 @@ const rules = reactive({
 })
 
 const getDetailInfo = async () => {
-    console.log(`route.query.id==${route.query.id}`)
-    if (route.query.id) {
+    console.log(`route.query.uid==${route.query.uid}`)
+    if (route.query.uid) {
         isEdit.value = true
-        const res = await $application.myCreateDetailByUid(route.query.id as string)
+        const res = await $application.myCreateDetailByUid(route.query.uid as string)
         if (res) {
             detailInfo.value = res
             detailInfo.value.code = String(res.code)
@@ -312,9 +312,9 @@ const submitForm = async (formEl, andOnline) => {
                 }
             }
             params.codeType = codeChk.value
-            if (route.query.id) {
+            if (route.query.uid) {
                 console.log(`开始更新`)
-                const rr = await $application.myCreateDetailByUid(route.query.id as string)
+                const rr = await $application.myCreateDetailByUid(route.query.uid as string)
                 rr.code = params.code
                 rr.codePackagePath = params.codePackagePath
                 rr.codeType = params.codeType
@@ -338,7 +338,7 @@ const submitForm = async (formEl, andOnline) => {
                     notifyError("❌2次密码输入不一致")
                     return
                 }
-                params.id = uuidv4()
+                params.uid = uuidv4()
                 const identity = await generateIdentity(params.code, params.serviceCodes, params.location, params.hash, params.name, params.description,params.avatar, params.password)
                 params.did = identity.metadata?.did
                 params.version = identity?.metadata?.version
