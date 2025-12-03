@@ -24,7 +24,10 @@
 // import {useProfileStore} from '@/stores/index'
 // const profileStore = useProfileStore()
 import { connectWallet } from '@/plugins/auth';
+import { notifyError } from '@/utils/message';
 import { useRouter, useRoute } from 'vue-router'
+import { waitForWallet } from '../../plugins/auth'
+import { getWalletDataStore } from '@/stores/auth'
 
 const router = useRouter();
 const route = useRoute();
@@ -36,6 +39,27 @@ const go = async (url: string) => {
 async function connectWalletClick() {
     await connectWallet(router, route)
 }
+
+// 页面加载时检测钱包
+window.addEventListener('load', async () => {
+  try {
+    await waitForWallet();
+    getWalletDataStore().setWalletReady(true)
+  } catch (error) {
+    console.error('钱包检测失败:', error);
+    const innerHTML = `
+        <p>❌ 未检测到钱包</p>
+        <p class="error">请确保：</p>
+        <ul>
+        <li>•已安装 YeYing Wallet 扩展</li>
+        <li>•已启用扩展</li>
+        <li>•已在扩展设置中允许访问文件 URL（如果使用 file:// 协议）</li>
+        <li>•刷新页面后重试</li>
+        </ul>
+    `;
+    notifyError(innerHTML)
+  }
+});
 
 </script>
 <style scoped lang="less">
