@@ -1,3 +1,6 @@
+import { getWalletDataStore } from "@/stores/auth";
+import { notifyError } from "@/utils/message";
+
 export interface AuditAuditMetadata {
     uid?: string;
     appOrServiceMetadata?: string;
@@ -117,6 +120,10 @@ export function convertAuditMetadata(auditMyApply: AuditAuditDetail[]) {
 class $audit {
 
     async create(meta: AuditAuditMetadata) {
+        if (localStorage.getItem("hasConnectedWallet") === "false") {
+            notifyError('❌未检测到钱包，请先安装并连接钱包');
+            return;
+        }
         const token = localStorage.getItem("authToken")
         
         const header = {
@@ -147,6 +154,10 @@ class $audit {
     }
 
     async search(condition: AuditAuditSearchCondition) {
+        if (localStorage.getItem("hasConnectedWallet") === "false") {
+            notifyError('❌未检测到钱包，请先安装并连接钱包');
+            return;
+        }
         const token = localStorage.getItem("authToken")
         console.log(`token=${token}`)
         const header = {
@@ -178,6 +189,10 @@ class $audit {
     }
 
     async passed(metadata: AuditCommentMetadata) {
+        if (localStorage.getItem("hasConnectedWallet") === "false") {
+            notifyError('❌未检测到钱包，请先安装并连接钱包');
+            return;
+        }
         const token = localStorage.getItem("authToken")
         const header = {
             "did": "xxxx"
@@ -207,6 +222,10 @@ class $audit {
     }
 
     async reject(metadata: AuditCommentMetadata) {
+        if (localStorage.getItem("hasConnectedWallet") === "false") {
+            notifyError('❌未检测到钱包，请先安装并连接钱包');
+            return;
+        }
         const token = localStorage.getItem("authToken")
         const header = {
             "did": "xxxx"
@@ -236,6 +255,10 @@ class $audit {
     }
 
     async detail(uid: string) {
+        if (localStorage.getItem("hasConnectedWallet") === "false") {
+            notifyError('❌未检测到钱包，请先安装并连接钱包');
+            return;
+        }
         const token = localStorage.getItem("authToken")
         const header = {
             "did": "xxxx"
@@ -265,6 +288,10 @@ class $audit {
     }
 
     async cancel(uid: string) {
+        if (localStorage.getItem("hasConnectedWallet") === "false") {
+            notifyError('❌未检测到钱包，请先安装并连接钱包');
+            return;
+        }
         const token = localStorage.getItem("authToken")
         const header = {
             "did": "xxxx"

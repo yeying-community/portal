@@ -16,6 +16,7 @@ export async function waitForWallet() {
       attempts++;
 
       if (typeof window.ethereum !== 'undefined') {
+        console.log("钱包检测就绪")
         clearInterval(interval);
         resolve(window.ethereum);
       } else if (attempts >= maxAttempts) {
@@ -28,8 +29,8 @@ export async function waitForWallet() {
 
 // 连接钱包
 export async function connectWallet(router: any, route: any) {
-    if (!getWalletDataStore().walletReady) {
-        notifyError('❌钱包未就绪，请等待检测完成');
+    if (localStorage.getItem("hasConnectedWallet") === "false") {
+        notifyError('❌未检测到钱包，请先安装并连接钱包');
         return;
     }
     try {
@@ -81,8 +82,8 @@ export function getCurrentAccount() {
 
 // 获取链 ID
 export async function getChainId() {
-    if (!getWalletDataStore().walletReady) {
-        notifyError('❌钱包未就绪，请等待检测完成');
+    if (localStorage.getItem("hasConnectedWallet") === "false") {
+        notifyError('❌未检测到钱包，请先安装并连接钱包');
         return;
     }
     try {
@@ -110,8 +111,8 @@ export async function getChainId() {
 
 // 获取余额
 export async function getBalance() {
-    if (!getWalletDataStore().walletReady) {
-        notifyError('❌钱包未就绪，请等待检测完成');
+    if (localStorage.getItem("hasConnectedWallet") === "false") {
+        notifyError('❌未检测到钱包，请先安装并连接钱包');
         return;
     }
     const currentAccount = getCurrentAccount()
@@ -139,8 +140,8 @@ export async function getBalance() {
 
 // Challenge 登录
 export async function loginWithChallenge() {
-    if (!getWalletDataStore().walletReady) {
-        notifyError('❌钱包未就绪，请等待检测完成');
+    if (localStorage.getItem("hasConnectedWallet") === "false") {
+        notifyError('❌未检测到钱包，请先安装并连接钱包');
         return;
     }
     const currentAccount = getCurrentAccount()

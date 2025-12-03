@@ -11,8 +11,6 @@ import { initializeProviders } from '@/plugins/account'
 import ElementPlus from 'element-plus'
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import { notifyError, notifySuccess } from './utils/message'
-import { getWalletDataStore } from '@/stores/auth'
-import { waitForWallet } from './plugins/auth'
 
 const app = createApp(App)
 
@@ -30,26 +28,7 @@ const router: Router = createRouter({
 })
 
 app.use(router)
-// 页面加载时检测钱包
-window.addEventListener('load', async () => {
-  try {
-    await waitForWallet();
-    getWalletDataStore().setWalletReady(true)
-  } catch (error) {
-    console.error('钱包检测失败:', error);
-    const innerHTML = `
-        <p>❌ 未检测到钱包</p>
-        <p class="error">请确保：</p>
-        <ul>
-        <li>•已安装 YeYing Wallet 扩展</li>
-        <li>•已启用扩展</li>
-        <li>•已在扩展设置中允许访问文件 URL（如果使用 file:// 协议）</li>
-        <li>•刷新页面后重试</li>
-        </ul>
-    `;
-    notifyError(innerHTML)
-  }
-});
+
 initializeProviders()
   .then(() => {
     app.mount('#app')
