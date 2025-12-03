@@ -29,7 +29,6 @@
 import { ref, watch } from "vue";
 import { RouterView, useRouter, useRoute } from "vue-router";
 import { Menu, Operation, Document } from "@element-plus/icons-vue";
-import { notifyError } from "@/utils/message";
 
 const router = useRouter();
 const route = useRoute();

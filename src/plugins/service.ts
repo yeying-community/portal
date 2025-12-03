@@ -2,6 +2,7 @@ import { indexedCache } from './account'
 import $audit from '@/plugins/audit'
 import { getCurrentAccount } from './auth'
 import { notifyError } from '@/utils/message'
+import { getWalletDataStore } from '@/stores/auth'
 
 export const ApplyStatusMap = {
     1: '申请中',
@@ -103,6 +104,10 @@ export interface ServiceMetadata {
 
 class $service {
     async search(condition: ServiceSearchCondition, page?: number, pageSize?: number) {
+        if (localStorage.getItem("hasConnectedWallet") === "false") {
+            notifyError('❌未检测到钱包，请先安装并连接钱包');
+            return;
+        }
         const token = localStorage.getItem("authToken")
         const header = {
             "did": "xxxx"
@@ -176,6 +181,10 @@ class $service {
     }
 
     async online(service: ServiceMetadata) {
+        if (localStorage.getItem("hasConnectedWallet") === "false") {
+            notifyError('❌未检测到钱包，请先安装并连接钱包');
+            return;
+        }
         const token = localStorage.getItem("authToken")
         const header = {
             "did": "xxxx"
@@ -210,6 +219,10 @@ class $service {
      * @param version 
      */
     async detail(did: string, version: number) {
+        if (localStorage.getItem("hasConnectedWallet") === "false") {
+            notifyError('❌未检测到钱包，请先安装并连接钱包');
+            return;
+        }
         const token = localStorage.getItem("authToken")
         const header = {
             "did": "xxxx"
@@ -243,6 +256,10 @@ class $service {
      * @param uid 
      */
     async queryByUid(uid: string) {
+        if (localStorage.getItem("hasConnectedWallet") === "false") {
+            notifyError('❌未检测到钱包，请先安装并连接钱包');
+            return;
+        }
         const token = localStorage.getItem("authToken")
         const header = {
             "did": "xxxx"
@@ -275,6 +292,10 @@ class $service {
     }
 
     async offline(did: string, version: number) {
+        if (localStorage.getItem("hasConnectedWallet") === "false") {
+            notifyError('❌未检测到钱包，请先安装并连接钱包');
+            return;
+        }
         const token = localStorage.getItem("authToken")
         const header = {
             "did": "xxxx"
@@ -305,6 +326,10 @@ class $service {
     }
 
     async unbind(uid: string) {
+        if (localStorage.getItem("hasConnectedWallet") === "false") {
+            notifyError('❌未检测到钱包，请先安装并连接钱包');
+            return;
+        }
         const account = getCurrentAccount()
         if (account === undefined || account === null) {
             notifyError("❌未查询到当前账户，请登录")

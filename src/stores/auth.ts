@@ -10,6 +10,7 @@ export const walletReadyDataStore = defineStore('walletReady', {
   actions: {
     setWalletReady(walletReady: boolean) {
       this.walletReady = walletReady
+      localStorage.setItem('hasConnectedWallet', String(walletReady))
     }
   }
 })

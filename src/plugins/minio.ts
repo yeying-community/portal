@@ -1,6 +1,13 @@
+import { getWalletDataStore } from "@/stores/auth";
+import { notifyError } from "@/utils/message";
+
 class $minio {
 
     async getUploadUrl(filename: string) {
+        if (localStorage.getItem("hasConnectedWallet") === "false") {
+            notifyError('❌未检测到钱包，请先安装并连接钱包');
+            return;
+        }
         const token = localStorage.getItem("authToken")
         const header = {
             "did": "xxxx"

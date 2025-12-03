@@ -4,6 +4,7 @@ import { createIdentity } from '@yeying-community/yeying-web3'
 import $audit from '@/plugins/audit'
 import { getCurrentAccount } from './auth'
 import { notifyError } from '@/utils/message'
+import { getWalletDataStore } from '@/stores/auth'
 
 
 export interface ApplicationDetail {
@@ -136,6 +137,10 @@ class $application {
     }
 
     async search(condition: ApplicationSearchCondition, page?: number, pageSize?: number) {
+        if (localStorage.getItem("hasConnectedWallet") === "false") {
+            notifyError('❌未检测到钱包，请先安装并连接钱包');
+            return;
+        }
         const token = localStorage.getItem("authToken")
         let params: { page?: number; pageSize?: number; condition?: Record<string, any> } = {}
         params.page = page || 1
@@ -221,6 +226,10 @@ class $application {
      * @param version 
      */
     async detail(did: string, version: number) {
+        if (localStorage.getItem("hasConnectedWallet") === "false") {
+            notifyError('❌未检测到钱包，请先安装并连接钱包');
+            return;
+        }
         const token = localStorage.getItem("authToken")
         const header = {
             "did": "xxxx"
@@ -255,6 +264,10 @@ class $application {
      * @param uid 
      */
     async queryByUid(uid: string) {
+        if (localStorage.getItem("hasConnectedWallet") === "false") {
+            notifyError('❌未检测到钱包，请先安装并连接钱包');
+            return;
+        }
         const token = localStorage.getItem("authToken")
         const header = {
             "did": "xxxx"
@@ -284,6 +297,10 @@ class $application {
     }
 
     async offline(did: string, version: number) {
+        if (localStorage.getItem("hasConnectedWallet") === "false") {
+            notifyError('❌未检测到钱包，请先安装并连接钱包');
+            return;
+        }
         const token = localStorage.getItem("authToken")
         const header = {
             "did": "xxxx"
@@ -314,6 +331,10 @@ class $application {
     }
 
     async online(application: ApplicationMetadata) {
+        if (localStorage.getItem("hasConnectedWallet") === "false") {
+            notifyError('❌未检测到钱包，请先安装并连接钱包');
+            return;
+        }
         const token = localStorage.getItem("authToken")
         const header = {
             "did": "xxxx"
@@ -343,6 +364,10 @@ class $application {
     }
 
     async unbind(uid: string) {
+        if (localStorage.getItem("hasConnectedWallet") === "false") {
+            notifyError('❌未检测到钱包，请先安装并连接钱包');
+            return;
+        }
         const account = getCurrentAccount()
         if (account === undefined || account === null) {
             notifyError("❌未查询到当前账户，请登录")
