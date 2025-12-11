@@ -1,8 +1,6 @@
 <template>
   <div class="profile">
-    <!-- Static sidebar for desktop -->
     <div class="left">
-      <!-- Sidebar component, swap this element with another sidebar if you like -->
       <div class="cont">
         <div
           v-for="item in navigation"
@@ -11,7 +9,6 @@
           class="item"
           :class="selectName.includes(item.name) ? 'active' : ''"
         >
-          <!-- <span class="iconfont" :class="item.icon"/> -->
           <el-icon>
             <component :is="item.icon" />
           </el-icon>
@@ -48,8 +45,7 @@ const navigation = [
     to: "/market/approval/",
     name: "approval",
     icon: Document,
-  },
-  // { title: "Message", to: '/profile/message', name: 'message', icon:"icon-bell-full" },
+  }
 ];
 
 // 监听路由变化
@@ -73,11 +69,6 @@ const changeRouter = (url: string) => {
 const toggleSidebar = () => {
   sidebarOpen.value = !sidebarOpen.value;
 };
-
-
-
-
-
 </script>
 
 <style scoped lang="less">

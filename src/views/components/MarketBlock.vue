@@ -60,7 +60,6 @@
             </div>
         </div>
         <!-- 我的创建 -->
-        <!-- todo 学虎，这个div包裹着的就是我创建的列表页上卡片中的按钮，需要接入接口 -->
         <div v-if="pageFrom === 'myCreate'">
             <div class="bottom owner">
                 <div @click="toDetail" class="cursor">详情</div>
@@ -97,7 +96,6 @@
         </div>
 
         <!-- 我的申请 -->
-        <!-- todo 学虎，这个div包裹着的就是我的申请列表页上卡片中的按钮，需要接入接口 -->
         <div v-if="pageFrom === 'myApply'">
             <div class="bottom owner">
                 <div @click="toDetail" class="cursor">详情</div>

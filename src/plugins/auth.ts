@@ -46,7 +46,8 @@ export async function connectWallet(router: any, route: any) {
                 localStorage.setItem('currentAccount', currentAccount);
                 notifySuccess(`✅钱包连接成功！\n账户: ${currentAccount}`);
                 await loginWithChallenge()
-                await router.push(route.fullPath);
+                // await router.push(route.fullPath);
+                location.reload();
             } else {
                 notifyError('❌未获取到账户');
             }

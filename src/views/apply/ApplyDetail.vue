@@ -177,19 +177,16 @@ const modalVisible = ref(false)
 /**
  * 应用是否上架
  * 我创建的-详情页需要展示这个字段，且右上角按钮也会跟着这个状态联动
- * todo 学虎，需要调用接口查询下应用的上架下架状态
  */
 const isOnline = ref(true) // 是否已经上架
 
 /**
  * 申请应用的状态
  * 我申请的-详情页需要展示这个字段，且右上角按钮也会跟着这个状态联动
- * todo 学虎，需要调用接口查询下应用的申请状态
  */
 const mockApplyStatus = ref('success')
 
 /**
- * todo 学虎 查询详情接口
  * 进入详情页的时候，需要查询详情接口
  */
 const detail = async () => {
@@ -211,7 +208,6 @@ const detail = async () => {
 }
 
 /**
- *todo 学虎
   我创建的tab-详情页-导出身份
  */
 const exportIdentity = async () => {

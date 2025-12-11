@@ -1,5 +1,3 @@
-<!-- todo 学虎，这个是服务编辑页面，里面的接口应该跟应用类似 -->
-
 <template>
     <div class="edit">
         <el-breadcrumb separator="/">

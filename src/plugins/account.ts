@@ -1,6 +1,6 @@
 import { IndexedCache } from '@yeying-community/yeying-next'
 import { $account } from '@yeying-community/yeying-wallet'
-import { createIdentity, Identity, IdentityApplicationExtend, IdentityCodeEnum, IdentityTemplate, NetworkTypeEnum, serializeIdentityToJson, verifyIdentity } from '@yeying-community/yeying-web3';
+import { createIdentity, IdentityApplicationExtend, IdentityCodeEnum, IdentityTemplate, NetworkTypeEnum, serializeIdentityToJson, verifyIdentity } from '@yeying-community/yeying-web3';
 import { getCurrentAccount } from './auth';
 import { notifyError } from '@/utils/message';
 
@@ -10,7 +10,6 @@ let userInfo = null
 
 // 初始化提供者
 async function initializeProviders() {
-    // userInfo = await $account.getActiveIdentity()
     currentAccount = getCurrentAccount()
     if (currentAccount === undefined || currentAccount === null) {
         notifyError(`❌未检测到账户信息，请连接钱包进行登录`)
