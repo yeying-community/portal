@@ -2,16 +2,11 @@
   <div class="layout_bg">
     <Header/>
     <RouterView />
-    <!-- <ContactModal/> -->
   </div>
 </template>
 
 <script lang="ts" setup>
-import {ref} from 'vue'
-import { RouterLink, RouterView } from 'vue-router'
 import Header from '@/components/layout/Header.vue'
-import ContactModal from '@/components/contact/Frame.vue'
-
 </script> 
 <style scoped>
 .layout_bg{

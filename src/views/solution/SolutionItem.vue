@@ -4,7 +4,6 @@
       <hr v-if="index!=0" class="my-6">
       <div class="flex justify-between">
         <div class="text-2xl font-puhuiMedium opacity-85">{{ item.title }}</div>
-        <!-- <div :class="['iconfont','text-gray-400','items-center', 'cursor-pointer',item.isShow?'icon-up':'icon-down']" @click="()=>changeShow(item)"></div> -->
       </div>
       <div class="text-base font-puhuiRegular text-blak-600 mt-3 opacity-65	">{{ item.desc }}</div>
       <div
@@ -25,20 +24,14 @@
               <div class="ml-1 font-puhuiMedium">{{ gitem.value }}</div>
             </div>
           </div>
-          <!-- <button type="button"
-              @click="openContact"
-              class="rounded-full bg-white px-3.5 py-2 text-sm font-semibold text-blue-900 shadow-sm ring-1 ring-inset ring-blue-300 hover:bg-blue-50">Contact Us</button> -->
         </div>
       </div>
     </div>
-    <!-- <ContactModal/> -->
-    <!-- <Contact :isOpen="open" ref="RefContact"/> -->
   </div>
 </template>
 
 <script lang="ts" setup>
 import {onMounted, ref, toRefs} from 'vue'
-// import { storeToRefs } from 'pinia'
 import {useSolutionStore} from '@/stores/index'
 
 const open = ref(false)

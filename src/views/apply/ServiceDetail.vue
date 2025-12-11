@@ -1,4 +1,3 @@
-<!-- todo 学虎 页面上的字段需要回填一下，很多字段现在都是mock的 -->
 <template>
     <div class="detail">
         <el-breadcrumb separator="/">
@@ -117,20 +116,14 @@ const route = useRoute()
 const urlQuery = ref({})
 const detailInfo = ref({})
 /**
- * todo 学虎，
  * 应用是否上架，这里需要调用接口查询应用的上架状态
  */
 const isOnline = ref(false) // 是否已经上架
 
 /**
- * todo 学虎，
  * 申请应用的状态，这里需要调用接口查询应用的申请状态
  */
 const mockApplyStatus = 'success'
-
-/**
- * todo 学虎，服务详情接口
- */
 
 const detail = async () => {
     if (route.query.pageFrom === 'myCreate') {
